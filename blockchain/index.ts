@@ -8,6 +8,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+const PORT = process.argv[2];
+
 app.get('/blockchain', (req, res) => {
   res.send(blockchain);
 });
@@ -35,4 +37,50 @@ app.get('/mine', (req, res) => {
    });
 });
 
-app.listen(3000, () => console.log('Listening on port 3000...'));
+app.post('/register-and-broadcast-node', (req, res) => {
+  const newNodeUrl = req.body.newNodeUrl;
+  blockchain.addNetworkNode(newNodeUrl);
+
+  const promises = blockchain.networkNodes.map(networkNode => {
+    return fetch(`${networkNode}/register-node`, { 
+      method: "POST", 
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }, 
+      body: JSON.stringify({ newNodeUrl: newNodeUrl }) 
+    })
+  })
+
+  Promise
+    .all(promises)
+    .then(_ => {
+      return fetch(`${newNodeUrl}/register-multiple-nodes`, {
+        method: "POST", 
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }, 
+        body: JSON.stringify({ allNetworkNodes: [...blockchain.networkNodes, blockchain.urlAddress] })
+      })
+    })
+    .then(_ => {
+      res.json({ note: 'New Node registered with network successfully' });
+    });
+})
+
+app.post('/register-node', (req, res) => {
+  const { newNodeUrl } = req.body;
+  blockchain.addNetworkNode(newNodeUrl);
+  res.json({ note: 'New node registered successfully.' });
+})
+
+app.post('/register-multiple-nodes', (req, res) => {
+  const { allNetworkNodes } = req.body;
+  (allNetworkNodes as string[]).forEach(networkNodeUrl => {
+    blockchain.addNetworkNode(networkNodeUrl);
+  })
+  res.json({note: 'Multiple nodes registrated successfully.' });
+})
+
+app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));

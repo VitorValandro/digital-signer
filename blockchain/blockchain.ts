@@ -39,11 +39,14 @@ export class Blockchain {
   private chain: Array<Block>;
   public pendingTransactions: Array<SignTransaction>;
   private hashAlgorithm = 'sha256';
+  private _networkNodes: Array<string>;
+  public urlAddress = `http://localhost:${process.argv[2]}`;
 
   constructor() {
     this.chain = [];
     this.pendingTransactions = [];
     this.createNewBlock(100, '0', '0');
+    this._networkNodes = [];
   }
 
   createNewBlock(nonce: number, previousBlockHash: string, hash: string): Block {
@@ -80,5 +83,16 @@ export class Blockchain {
     }
 
     return nonce;
+  }
+
+  addNetworkNode(newNodeUrl: string){
+    if (newNodeUrl === this.urlAddress) return;
+    const alreadyExists = this._networkNodes.find(nodeUrl => nodeUrl === newNodeUrl);
+    if (alreadyExists) return;
+    this._networkNodes.push(newNodeUrl);
+  }
+
+  get networkNodes() {
+    return this._networkNodes;
   }
 }

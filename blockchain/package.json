@@ -7,7 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
     "start": "node dist/index.js",
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\""
+    "node_1": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js 3001\"",
+    "node_2": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js 3002\"",
+    "node_3": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js 3003\"",
+    "node_4": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js 3004\"",
+    "node_5": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js 3005\""
   },
   "keywords": [],
   "author": "",
