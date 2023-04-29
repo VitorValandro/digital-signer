@@ -53,10 +53,34 @@ app.get('/mine', (req, res) => {
   const blockHash = blockchain.hashBlock(previousBlockHash, currentBlockData, nonce);
 
   const newBlock = blockchain.createNewBlock(nonce, previousBlockHash, blockHash);
-  res.json({
-    note: "New block mined successfully",
-    block: newBlock
+  const promises = blockchain.networkNodes.map(networkNode => {
+    console.log('node > ', networkNode)
+    return fetch(`${networkNode}/receive-new-block`, {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ block: newBlock })
+    })
   });
+
+  Promise
+    .all(promises)
+    .then(_ => res.json({ note: "New block mined successfully", block: newBlock }))
+});
+
+app.post('/receive-new-block', function (req, res) {
+  const { block } = req.body;
+  if (!block) return res.status(403).json({ error: "Missing required block object" });
+  const lastBlock = blockchain.getLastBlock();
+
+  const isPreviousBlockHashedCorrectly = lastBlock.hash === block.previousBlockHash;
+  const isNewBlockPlaceOnTheCorrectIndex = lastBlock.index + 1 === block.index;
+
+  if (!isPreviousBlockHashedCorrectly || !isNewBlockPlaceOnTheCorrectIndex) return res.status(403).json({ error: "The block is invalid and therefore rejected" });
+  blockchain.addNewBlock(block);
+  res.json({ note: 'New block received and accepted ', block: block })
 });
 
 app.post('/register-and-broadcast-node', (req, res) => {

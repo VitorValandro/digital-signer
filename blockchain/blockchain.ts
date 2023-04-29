@@ -53,12 +53,16 @@ export class Blockchain {
   }
 
   createNewBlock(nonce: number, previousBlockHash: string, hash: string): Block {
-    const newBlock = new Block(this.chain.length + 1, this.pendingTransactions, nonce, previousBlockHash, hash);
-
-    this.pendingTransactions = [];
-    this.chain.push(newBlock);
+    const newBlock = new Block(this.chain.length + 1, this.pendingTransactions, nonce, hash, previousBlockHash);
+    this.addNewBlock(newBlock);
 
     return newBlock;
+  }
+
+  addNewBlock(block: Block) {
+    if (!block) return;
+    this.pendingTransactions = [];
+    this.chain.push(block);
   }
 
   getLastBlock(): Block {
