@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import { createHash } from "crypto";
 
 export type BlockData = {
@@ -9,11 +10,13 @@ export class SignTransaction {
   public name: string;
   public signer: string;
   public fileHash: string;
-  
+  private transactionId: string;
+
   constructor(name: string, signer: string, fileHash: string) {
     this.name = name;
     this.signer = signer;
     this.fileHash = fileHash;
+    this.transactionId = uuid().split('-').join('-');
   }
 }
 
@@ -62,8 +65,11 @@ export class Blockchain {
     return this.chain[this.chain.length - 1];
   }
 
-  createNewTransaction(name: string, signer: string, fileHash: string): number {
-    const transaction = new SignTransaction(name, signer, fileHash);
+  createNewTransaction(name: string, signer: string, fileHash: string): SignTransaction {
+    return new SignTransaction(name, signer, fileHash);
+  }
+
+  addNewTransaction(transaction: SignTransaction): number {
     this.pendingTransactions.push(transaction);
     return this.getLastBlock().index + 1;
   }
@@ -85,7 +91,7 @@ export class Blockchain {
     return nonce;
   }
 
-  addNetworkNode(newNodeUrl: string){
+  addNetworkNode(newNodeUrl: string) {
     if (newNodeUrl === this.urlAddress) return;
     const alreadyExists = this._networkNodes.find(nodeUrl => nodeUrl === newNodeUrl);
     if (alreadyExists) return;

@@ -15,12 +15,34 @@ app.get('/blockchain', (req, res) => {
 });
 
 app.post('/transaction', (req, res) => {
-  console.log('alo')
+  const { transaction } = req.body;
+  if (!transaction) return res.status(403).json({ error: "Missing required transaction object" });
+
+  const index = blockchain.addNewTransaction(transaction);
+  res.json({ note: `Transaction will be added in block ${index}` });
+});
+
+app.post('/transaction/broadcast', (req, res) => {
   const { name, signer, fileHash } = req.body;
   if (!name || !signer || !fileHash) return res.status(403).json({ error: "Missing required information" });
 
-  const index = blockchain.createNewTransaction(name, signer, fileHash);
-  res.json({ note: `Transaction will be added in block ${index}`});
+  const newTransaction = blockchain.createNewTransaction(name, signer, fileHash);
+
+  blockchain.addNewTransaction(newTransaction);
+  const promises = blockchain.networkNodes.map(networkNode => {
+    return fetch(`${networkNode}/transaction`, {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ transaction: newTransaction })
+    })
+  })
+
+  Promise
+    .all(promises)
+    .then(_ => res.json({ note: 'Transaction created and broadcast successfully.' }));
 });
 
 app.get('/mine', (req, res) => {
@@ -34,7 +56,7 @@ app.get('/mine', (req, res) => {
   res.json({
     note: "New block mined successfully",
     block: newBlock
-   });
+  });
 });
 
 app.post('/register-and-broadcast-node', (req, res) => {
@@ -42,13 +64,13 @@ app.post('/register-and-broadcast-node', (req, res) => {
   blockchain.addNetworkNode(newNodeUrl);
 
   const promises = blockchain.networkNodes.map(networkNode => {
-    return fetch(`${networkNode}/register-node`, { 
-      method: "POST", 
+    return fetch(`${networkNode}/register-node`, {
+      method: "POST",
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
-      }, 
-      body: JSON.stringify({ newNodeUrl: newNodeUrl }) 
+      },
+      body: JSON.stringify({ newNodeUrl: newNodeUrl })
     })
   })
 
@@ -56,11 +78,11 @@ app.post('/register-and-broadcast-node', (req, res) => {
     .all(promises)
     .then(_ => {
       return fetch(`${newNodeUrl}/register-multiple-nodes`, {
-        method: "POST", 
+        method: "POST",
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
-        }, 
+        },
         body: JSON.stringify({ allNetworkNodes: [...blockchain.networkNodes, blockchain.urlAddress] })
       })
     })
@@ -80,7 +102,7 @@ app.post('/register-multiple-nodes', (req, res) => {
   (allNetworkNodes as string[]).forEach(networkNodeUrl => {
     blockchain.addNetworkNode(networkNodeUrl);
   })
-  res.json({note: 'Multiple nodes registrated successfully.' });
+  res.json({ note: 'Multiple nodes registrated successfully.' });
 })
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));
