@@ -7,10 +7,10 @@ export type BlockData = {
 }
 
 export class SignTransaction {
-  public name: string;
-  public signer: string;
-  public fileHash: string;
-  private transactionId: string;
+  public readonly name: string;
+  public readonly signer: string;
+  public readonly fileHash: string;
+  private readonly transactionId: string;
 
   constructor(name: string, signer: string, fileHash: string) {
     this.name = name;
@@ -21,12 +21,12 @@ export class SignTransaction {
 }
 
 export class Block {
-  public index: number;
-  public timestamp: number;
-  public transactions: Array<SignTransaction>;
-  private nonce: number;
-  public hash: string;
-  private previousBlockHash: string;
+  public readonly index: number;
+  public readonly timestamp: number;
+  public readonly transactions: Array<SignTransaction>;
+  public readonly nonce: number;
+  public readonly hash: string;
+  public readonly previousBlockHash: string;
 
   constructor(index: number, transactions: SignTransaction[], nonce: number, hash: string, previousBlockHash: string) {
     this.index = index;
@@ -39,11 +39,11 @@ export class Block {
 }
 
 export class Blockchain {
-  private chain: Array<Block>;
+  public chain: Array<Block>;
   public pendingTransactions: Array<SignTransaction>;
   private hashAlgorithm = 'sha256';
-  private _networkNodes: Array<string>;
-  public urlAddress = `http://localhost:${process.argv[2]}`;
+  private readonly _networkNodes: Array<string>;
+  public readonly urlAddress = `http://localhost:${process.argv[2]}`;
 
   constructor() {
     this.chain = [];
@@ -93,6 +93,26 @@ export class Blockchain {
     }
 
     return nonce;
+  }
+
+  chainIsValid(chain: Array<Block>) {
+    const genesisBlock = chain[0];
+    if (genesisBlock.nonce !== 100) return false;
+    if (genesisBlock.previousBlockHash !== '0') return false;
+    if (genesisBlock.hash !== '0') return false;
+    if (genesisBlock.transactions.length !== 0) return false;
+
+    for (let i = 1; i < chain.length; i++) {
+      const currentBlock = chain[i];
+      const previousBlock = chain[i - 1];
+
+      if (currentBlock.previousBlockHash !== previousBlock.hash) return false;
+
+      const blockHash = this.hashBlock(previousBlock.hash, { transactions: currentBlock.transactions, index: currentBlock.index }, currentBlock.nonce);
+      if (blockHash.substring(0, 4) !== '0000') return false;
+    }
+
+    return true;
   }
 
   addNetworkNode(newNodeUrl: string) {

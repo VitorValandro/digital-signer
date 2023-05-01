@@ -54,7 +54,6 @@ app.get('/mine', (req, res) => {
 
   const newBlock = blockchain.createNewBlock(nonce, previousBlockHash, blockHash);
   const promises = blockchain.networkNodes.map(networkNode => {
-    console.log('node > ', networkNode)
     return fetch(`${networkNode}/receive-new-block`, {
       method: "POST",
       headers: {
@@ -127,6 +126,33 @@ app.post('/register-multiple-nodes', (req, res) => {
     blockchain.addNetworkNode(networkNodeUrl);
   })
   res.json({ note: 'Multiple nodes registrated successfully.' });
+})
+
+app.get('/consensus', (req, res) => {
+  // implements the longest chain consensus algorithm
+  const promises = blockchain.networkNodes.map(networkNodeUrl => {
+    return fetch(`${networkNodeUrl}/blockchain`)
+  });
+
+  Promise
+    .all(promises)
+    .then(async responses => {
+      const otherNodesBlockchains = await Promise.all(responses.map(response => response.json()) as unknown as Array<Blockchain>);
+      const maxLengthBlockchain = otherNodesBlockchains.reduce((maxLengthChain, currentChain) => currentChain.chain.length > maxLengthChain.chain.length ? currentChain : maxLengthChain, blockchain)
+
+      if (maxLengthBlockchain.chain.length === blockchain.chain.length || !blockchain.chainIsValid(maxLengthBlockchain.chain))
+        return res.json({
+          note: 'Current chain has not been replaced.',
+          chain: blockchain.chain
+        });
+
+      blockchain.chain = maxLengthBlockchain.chain;
+      blockchain.pendingTransactions = maxLengthBlockchain.pendingTransactions;
+      res.json({
+        note: 'This chain has been replaced.',
+        chain: blockchain.chain
+      });
+    })
 })
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));
