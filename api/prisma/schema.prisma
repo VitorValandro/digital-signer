@@ -12,24 +12,22 @@ model User {
   name            String
   email           String           @unique
   password        String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   documents       Document[]
   signatures      Signature[]
   signatureAssets SignatureAsset[]
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
 }
 
 model Document {
   id                String      @id @unique @default(uuid())
-  originalFilePath  String
-  signedFilePath    String      @unique
-  blankDocumentUrl  String
+  blankDocumentUrl  String      @unique
   signedDocumentUrl String?
   signatures        Signature[]
-  User              User?       @relation(fields: [userId], references: [id])
-  userId            String?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
+  owner             User?       @relation(fields: [ownerId], references: [id])
+  ownerId           String?
 }
 
 model Signature {
@@ -40,21 +38,21 @@ model Signature {
   width            Float?
   height           Float?
   pageIndex        Int?
+  signedAt         DateTime?
   document         Document        @relation(fields: [documentId], references: [id])
   documentId       String
   signee           User?           @relation(fields: [signeeId], references: [id])
   signeeId         String?
   signatureAsset   SignatureAsset? @relation(fields: [signatureAssetId], references: [id])
   signatureAssetId String?
-  signedAt         DateTime        @default(now())
 }
 
 model SignatureAsset {
   id           String      @id @default(uuid())
   signatureUrl String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   signee       User        @relation(fields: [signeeId], references: [id])
   signeeId     String
   signatures   Signature[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
 }
