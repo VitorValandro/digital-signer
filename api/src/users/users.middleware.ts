@@ -6,7 +6,7 @@ const jwtPayloadIsValid = (value: JwtPayload | string): value is JwtPayload => {
 }
 
 export interface AuthorizedRequest extends Request {
-  userId: string
+  userId?: string
 };
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
