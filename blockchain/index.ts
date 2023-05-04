@@ -1,6 +1,7 @@
 import bodyParser from "body-parser";
 import express from "express";
 import { Blockchain } from "./blockchain";
+import { MerkleTree } from "./merkle";
 
 const blockchain = new Blockchain();
 
@@ -48,11 +49,12 @@ app.post('/transaction/broadcast', (req, res) => {
 app.get('/mine', (req, res) => {
   const lastBlock = blockchain.getLastBlock();
   const previousBlockHash = lastBlock.hash;
-  const currentBlockData = { transactions: blockchain.pendingTransactions, index: lastBlock.index + 1 };
+  const tree = MerkleTree.create(blockchain.pendingTransactions);
+  const currentBlockData = { transactions: tree.leafs, rootHash: tree.root.value, index: lastBlock.index + 1 };
   const nonce = blockchain.proofOfWork(previousBlockHash, currentBlockData);
   const blockHash = blockchain.hashBlock(previousBlockHash, currentBlockData, nonce);
 
-  const newBlock = blockchain.createNewBlock(nonce, previousBlockHash, blockHash);
+  const newBlock = blockchain.createNewBlock(nonce, previousBlockHash, blockHash, tree.leafs, tree.root.value);
   const promises = blockchain.networkNodes.map(networkNode => {
     return fetch(`${networkNode}/receive-new-block`, {
       method: "POST",

@@ -1,7 +1,7 @@
 import { SignTransaction } from "./blockchain";
 import { BinaryLike, createHash } from "crypto";
 
-const sha256 = (data: BinaryLike) => {
+export const sha256 = (data: BinaryLike) => {
   return createHash('sha256')
     .update(data)
     .digest()
@@ -20,22 +20,25 @@ class MerkleNode {
   }
 }
 
-class MerkleTree {
+export class MerkleTree {
   public readonly root: MerkleNode;
+  public readonly leafs: string[];
   public readonly size: number;
 
-  constructor(root: MerkleNode, size: number) {
+  constructor(root: MerkleNode, leafs: string[], size: number) {
     this.root = root;
     this.size = size;
+    this.leafs = leafs;
   }
 
   static create(transactions: SignTransaction[]) {
-    if (!transactions.length) return;
+    if (!transactions.length) throw Error('Transactions array cant be null');
     const size = Math.ceil(Math.log2(transactions.length)) + 1;
-    const hashedTransactions = transactions.map(t => new MerkleNode(sha256(JSON.stringify(t))));
+    const leafs = transactions.map(t => sha256(JSON.stringify(t)));
+    const hashedTransactions = leafs.map(leaf => new MerkleNode(leaf));
     const root = this.makeRoot(hashedTransactions);
 
-    return new MerkleTree(root, size);
+    return new MerkleTree(root, leafs, size);
   }
 
   private static makeRoot(hashedNodes: MerkleNode[]): MerkleNode {
@@ -44,7 +47,7 @@ class MerkleTree {
 
     for (let i = 0; i < hashedNodes.length; i += 2) {
       const leftNode = hashedNodes[i];
-      if (i + 1 >= length) {
+      if (i + 1 >= hashedNodes.length) {
         sublist.push(leftNode);
         break;
       }
