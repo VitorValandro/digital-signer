@@ -1,8 +1,10 @@
 import { v4 as uuid } from 'uuid';
 import { createHash } from "crypto";
+import { MerkleTree } from './merkle';
 
 export type BlockData = {
-  transactions: SignTransaction[];
+  rootHash: string;
+  transactions: string[];
   index: number;
 }
 
@@ -23,15 +25,17 @@ export class SignTransaction {
 export class Block {
   public readonly index: number;
   public readonly timestamp: number;
-  public readonly transactions: Array<SignTransaction>;
+  public readonly transactions: string[];
+  public readonly rootHash: string;
   public readonly nonce: number;
   public readonly hash: string;
   public readonly previousBlockHash: string;
 
-  constructor(index: number, transactions: SignTransaction[], nonce: number, hash: string, previousBlockHash: string) {
+  constructor(index: number, transactions: string[], rootHash: string, nonce: number, hash: string, previousBlockHash: string) {
     this.index = index;
     this.timestamp = Date.now();
     this.transactions = transactions;
+    this.rootHash = rootHash;
     this.nonce = nonce;
     this.hash = hash;
     this.previousBlockHash = previousBlockHash;
@@ -48,12 +52,12 @@ export class Blockchain {
   constructor() {
     this.chain = [];
     this.pendingTransactions = [];
-    this.createNewBlock(100, '0', '0');
+    this.createNewBlock(100, '0', '0', [], '0');
     this._networkNodes = [];
   }
 
-  createNewBlock(nonce: number, previousBlockHash: string, hash: string): Block {
-    const newBlock = new Block(this.chain.length + 1, this.pendingTransactions, nonce, hash, previousBlockHash);
+  createNewBlock(nonce: number, previousBlockHash: string, hash: string, transactions: string[], rootHash: string): Block {
+    const newBlock = new Block(this.chain.length + 1, transactions, rootHash, nonce, hash, previousBlockHash);
     this.addNewBlock(newBlock);
 
     return newBlock;
@@ -108,7 +112,7 @@ export class Blockchain {
 
       if (currentBlock.previousBlockHash !== previousBlock.hash) return false;
 
-      const blockHash = this.hashBlock(previousBlock.hash, { transactions: currentBlock.transactions, index: currentBlock.index }, currentBlock.nonce);
+      const blockHash = this.hashBlock(previousBlock.hash, { transactions: currentBlock.transactions, rootHash: currentBlock.rootHash, index: currentBlock.index }, currentBlock.nonce);
       if (blockHash.substring(0, 4) !== '0000') return false;
     }
 
