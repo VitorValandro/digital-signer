@@ -37,22 +37,16 @@ export const createDocument = async (req: AuthorizedRequest, res: Response) => {
     },
   });
 
-  await Promise.all(
-    documentData.signees.map(async ({ id, quantity }) => {
-      const promises = [];
-      for (let i = 0; i < quantity; i++) {
-        const query = prisma.signature.create({
-          data: {
-            documentId: document.id,
-            signeeId: id
-          }
-        });
-        promises.push(query);
-      };
-
-      return promises;
-    })
-  );
+  documentData.signees.map(async ({ id, quantity }) => {
+    for (let i = 0; i < quantity; i++) {
+      await prisma.signature.create({
+        data: {
+          documentId: document.id,
+          signeeId: id
+        }
+      });
+    };
+  });
 
   return res
     .status(201)
