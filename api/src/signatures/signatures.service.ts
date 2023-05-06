@@ -9,6 +9,7 @@ import { prisma } from '../../prisma-client';
 import SignPDF from '../sign/signPdf';
 import { storageProvider } from '../providers/storage.provider';
 import { getFileExtension, parseFormDataWithFiles } from '../helpers/utils';
+import { drawSignatureOnFile } from '../sign/drawSignatureOnFile';
 
 export const signDocument = async (req: AuthorizedRequest, res: Response) => {
   const newSignSchema = z.array(
@@ -20,7 +21,7 @@ export const signDocument = async (req: AuthorizedRequest, res: Response) => {
       x: z.number().positive(),
       y: z.number().positive(),
       pageIndex: z.number(),
-      signatureAssetId: z.string().uuid().optional()
+      signatureAssetId: z.string().uuid()
     }
     )).min(1);
 
@@ -47,11 +48,11 @@ export const signDocument = async (req: AuthorizedRequest, res: Response) => {
           },
           data: {
             ...body,
-            // signatureAsset: {
-            //   connect: {
-            //     id: signatureAssetId
-            //   }
-            // }
+            signatureAsset: {
+              connect: {
+                id: signatureAssetId
+              }
+            }
           }
         })
       })
@@ -102,7 +103,9 @@ const saveSignedDocument = async (documentId: string | undefined) => {
   if (document.signatures.some(signature => !signature.isSigned)) return;
 
   const { fileName, file } = await storageProvider.download(document.blankDocumentUrl);
-  const pdfMetadata = new SignPDF(file, './assets/test-certificate.p12', 0);
+  const documentWithSignatureAssets = await drawSignatureOnFile(file, document.signatures);
+
+  const pdfMetadata = new SignPDF(documentWithSignatureAssets, './assets/test-certificate.p12', 0);
 
   const pdfBuffer = await pdfMetadata.signPDF();
   const signedFileName = `signed_${fileName}`;
