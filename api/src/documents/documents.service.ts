@@ -1,7 +1,12 @@
 import { z } from 'zod';
-import { prisma } from '../../prisma-client';
 import { Response } from 'express';
+import formidable from 'formidable';
+import { v4 as uuid } from 'uuid';
+import fs from 'node:fs';
+
 import { AuthorizedRequest } from '../users/users.middleware';
+import { prisma } from '../../prisma-client';
+import { storageProvider } from '../providers/storage.provider';
 
 export const createDocument = async (req: AuthorizedRequest, res: Response) => {
   const DocumentDto = z.object({
@@ -51,4 +56,34 @@ export const createDocument = async (req: AuthorizedRequest, res: Response) => {
   return res
     .status(201)
     .json({ message: 'Documento criado com sucesso', documentId: document.id });
+};
+
+const parseForm = (req: AuthorizedRequest) =>
+  new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
+    const form = new formidable.IncomingForm({ keepExtensions: true });
+
+    form.parse(req, (err, fields, files) => {
+      return err ? reject(err) : resolve({ fields, files });
+    });
+  });
+
+export const uploadDocument = async (req: AuthorizedRequest, res: Response) => {
+  const body = await parseForm(req);
+
+  const documentFile = Array.isArray(body.files.document)
+    ? body.files.document[0]
+    : body.files.document;
+
+  if (!documentFile) return res.status(400).json({ message: 'No document file provided' });
+
+  const documentId = uuid();
+  const fileName = `${documentId}_${documentFile.originalFilename}`;
+
+  const storageUrl = await storageProvider.save(
+    fileName,
+    fs.readFileSync(documentFile.filepath),
+    'blank-documents'
+  );
+
+  return res.status(201).json({ fileName, storageUrl });
 };
