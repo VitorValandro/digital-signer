@@ -15,8 +15,8 @@ export default class SignPDF {
   certificate: Buffer;
   page: number;
 
-  constructor(pdfFile: string, certFile: string, page: number) {
-    this.pdfDoc = fs.readFileSync(pdfFile);
+  constructor(pdfFile: Buffer, certFile: string, page: number) {
+    this.pdfDoc = pdfFile;
     this.certificate = fs.readFileSync(certFile);
     this.page = page;
   }

@@ -82,7 +82,7 @@ export const uploadDocument = async (req: AuthorizedRequest, res: Response) => {
   const storageUrl = await storageProvider.save(
     fileName,
     fs.readFileSync(documentFile.filepath),
-    'blank-documents'
+    'signed-documents'
   );
 
   return res.status(201).json({ fileName, storageUrl });

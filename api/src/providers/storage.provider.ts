@@ -1,8 +1,9 @@
 import * as fs from 'node:fs';
-import { Storage } from 'megajs';
+import { Storage, File } from 'megajs';
 
 interface StorageProvider {
   save: (fileName: string, file: Buffer, folderName: string | null,) => Promise<string>;
+  download: (fileUrl: string) => Promise<{ fileName: string, file: Buffer }>;
 }
 
 class CloudStorageProvider implements StorageProvider {
@@ -19,9 +20,16 @@ class CloudStorageProvider implements StorageProvider {
   }
 
   async save(fileName: string, fileContent: Buffer, folderName: string | null): Promise<string> {
-    const file = await this.storage.upload(`blank_${fileName}`, fileContent).complete;
+    const file = await this.storage.upload(fileName, fileContent).complete;
     return await file.link(false);
   }
+
+  async download(fileUrl: string) {
+    const file = File.fromURL(fileUrl);
+    const fileName = (await file.loadAttributes()).name || 'error_retrieving_name.pdf';
+    const buffer = await file.downloadBuffer({});
+    return { fileName, file: buffer };
+  };
 }
 
 class LocalStorageProvider implements StorageProvider {
@@ -37,6 +45,12 @@ class LocalStorageProvider implements StorageProvider {
     fs.writeFileSync(filePath, fileContent);
     return filePath;
   }
+
+  async download(fileUrl: string) {
+    const fileName = fileUrl.split('/').pop() || 'error_retrieving_name.pdf';
+    const buffer = await fs.readFileSync(fileUrl);
+    return { fileName, file: buffer };
+  };
 }
 
 export const storageProvider: StorageProvider =
