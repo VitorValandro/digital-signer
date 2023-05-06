@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware } from '../users/users.middleware';
-import { createDocument } from './documents.service';
+import { createDocument, uploadDocument } from './documents.service';
 
 const router = Router();
 
@@ -9,5 +9,6 @@ router.get('/', authMiddleware, (req, res) => {
 })
 
 router.post('/', authMiddleware, createDocument);
+router.post('/upload', authMiddleware, uploadDocument);
 
 export default router;
