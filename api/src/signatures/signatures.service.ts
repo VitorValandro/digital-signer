@@ -1,11 +1,14 @@
 import { z } from 'zod';
 import { Response } from 'express';
 import { Prisma } from '@prisma/client';
+import { v4 as uuid } from 'uuid';
+import fs from 'node:fs';
 
 import { AuthorizedRequest } from '../users/users.middleware';
 import { prisma } from '../../prisma-client';
 import SignPDF from '../sign/signPdf';
 import { storageProvider } from '../providers/storage.provider';
+import { getFileExtension, parseFormDataWithFiles } from '../helpers/utils';
 
 export const signDocument = async (req: AuthorizedRequest, res: Response) => {
   const newSignSchema = z.array(
@@ -113,4 +116,40 @@ const saveSignedDocument = async (documentId: string | undefined) => {
       signedDocumentUrl: signedDocumentUrl
     }
   })
+}
+
+export const uploadSignatureAsset = async (req: AuthorizedRequest, res: Response) => {
+  const body = await parseFormDataWithFiles(req);
+
+  const signatureFile = Array.isArray(body.files.signature)
+    ? body.files.signature[0]
+    : body.files.signature;
+
+  if (!signatureFile?.originalFilename) return res.status(400).json({ message: 'Nenhum arquivo para assinatura foi fornecido' });
+
+  if (!body.fields.userId || typeof body.fields.userId !== 'string')
+    return res.status(400).json({ message: 'Formulário inválido. Sem identificação para o usuário' });
+
+  const user = await prisma.user.findUnique({
+    where: { id: body.fields.userId },
+    select: { id: true },
+  });
+
+  if (!user) return res.status(404).json({ message: 'Usuário não encontrado' });
+
+  const signatureId = uuid();
+  const fileExtension = getFileExtension(signatureFile.originalFilename);
+  const fileName = `signature_${signatureId}.${fileExtension}`;
+
+  const storageUrl = await storageProvider.save(fileName, fs.readFileSync(signatureFile.filepath), 'signatures');
+
+  const signatureAsset = await prisma.signatureAsset.create({
+    data: {
+      id: signatureId,
+      signeeId: body.fields.userId,
+      signatureUrl: storageUrl,
+    },
+  });
+
+  return res.status(201).json({ signatureAsset });
 }
