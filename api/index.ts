@@ -5,6 +5,7 @@ import userRoutes from "./src/users/users.routes";
 import documentRoutes from "./src/documents/documents.routes";
 import signatureRoutes from "./src/signatures/signatures.routes";
 import bodyParser from "body-parser";
+import { storageProvider } from './src/providers/storage.provider';
 
 dotenv.config();
 

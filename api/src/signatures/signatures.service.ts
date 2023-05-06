@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { Response } from 'express';
 import { Prisma } from '@prisma/client';
-import fs from 'node:fs';
 
 import { AuthorizedRequest } from '../users/users.middleware';
 import { prisma } from '../../prisma-client';
 import SignPDF from '../sign/signPdf';
+import { storageProvider } from '../providers/storage.provider';
 
 export const signDocument = async (req: AuthorizedRequest, res: Response) => {
   const newSignSchema = z.array(
@@ -98,18 +98,19 @@ const saveSignedDocument = async (documentId: string | undefined) => {
 
   if (document.signatures.some(signature => !signature.isSigned)) return;
 
-  const pdfMetadata = new SignPDF('./assets/example.pdf', './assets/test-certificate.p12', 0);
+  const { fileName, file } = await storageProvider.download(document.blankDocumentUrl);
+  const pdfMetadata = new SignPDF(file, './assets/test-certificate.p12', 0);
 
   const pdfBuffer = await pdfMetadata.signPDF();
-  const pdfName = `./assets/signed-test.pdf`;
-  fs.writeFileSync(pdfName, pdfBuffer);
+  const signedFileName = `signed_${fileName}`;
+  const signedDocumentUrl = await storageProvider.save(signedFileName, pdfBuffer, 'signed-documents');
 
   await prisma.document.update({
     where: {
       id: documentId,
     },
     data: {
-      signedDocumentUrl: pdfName
+      signedDocumentUrl: signedDocumentUrl
     }
   })
 }
