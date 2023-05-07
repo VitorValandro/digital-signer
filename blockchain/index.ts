@@ -1,52 +1,19 @@
 import bodyParser from "body-parser";
 import express from "express";
+import cron from 'node-cron';
+
 import { Blockchain } from "./blockchain";
 import { MerkleTree } from "./merkle";
 
+const PORT = process.argv[2];
 const blockchain = new Blockchain();
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const PORT = process.argv[2];
-
-app.get('/blockchain', (req, res) => {
-  res.send(blockchain);
-});
-
-app.post('/transaction', (req, res) => {
-  const { transaction } = req.body;
-  if (!transaction) return res.status(403).json({ error: "Missing required transaction object" });
-
-  const index = blockchain.addNewTransaction(transaction);
-  res.json({ note: `Transaction will be added in block ${index}` });
-});
-
-app.post('/transaction/broadcast', (req, res) => {
-  const { name, signer, fileHash } = req.body;
-  if (!name || !signer || !fileHash) return res.status(403).json({ error: "Missing required information" });
-
-  const newTransaction = blockchain.createNewTransaction(name, signer, fileHash);
-
-  blockchain.addNewTransaction(newTransaction);
-  const promises = blockchain.networkNodes.map(networkNode => {
-    return fetch(`${networkNode}/transaction`, {
-      method: "POST",
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ transaction: newTransaction })
-    })
-  })
-
-  Promise
-    .all(promises)
-    .then(_ => res.json({ note: 'Transaction created and broadcast successfully.' }));
-});
-
-app.get('/mine', (req, res) => {
+cron.schedule('* * * * *', () => {
+  if (!blockchain.pendingTransactions.length) return;
   const lastBlock = blockchain.getLastBlock();
   const previousBlockHash = lastBlock.hash;
   const tree = MerkleTree.create(blockchain.pendingTransactions);
@@ -68,8 +35,44 @@ app.get('/mine', (req, res) => {
 
   Promise
     .all(promises)
-    .then(_ => res.json({ note: "New block mined successfully", block: newBlock }))
+    .then(_ => console.log({ note: "New block mined successfully", block: newBlock }))
+})
+
+
+app.get('/blockchain', (req, res) => {
+  res.send(blockchain);
 });
+
+app.post('/transaction', (req, res) => {
+  const { transaction } = req.body;
+  if (!transaction) return res.status(403).json({ error: "Missing required transaction object" });
+
+  const index = blockchain.addNewTransaction(transaction);
+  res.json({ note: `Transaction will be added in block ${index}` });
+});
+
+app.post('/transaction/broadcast', (req, res) => {
+  const { fileHash } = req.body;
+  if (!fileHash) return res.status(403).json({ error: "Missing required information" });
+
+  const newTransaction = blockchain.createNewTransaction(fileHash);
+
+  blockchain.addNewTransaction(newTransaction);
+  const promises = blockchain.networkNodes.map(networkNode => {
+    return fetch(`${networkNode}/transaction`, {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ transaction: newTransaction })
+    })
+  })
+
+  Promise
+    .all(promises)
+    .then(_ => res.json({ note: 'Transaction created and broadcast successfully.' }));
+})
 
 app.post('/receive-new-block', function (req, res) {
   const { block } = req.body;
@@ -155,6 +158,12 @@ app.get('/consensus', (req, res) => {
         chain: blockchain.chain
       });
     })
+})
+
+app.get('/network-acknowledge', (req, res) => {
+  return res.json({
+    networkNodes: blockchain.networkNodes
+  })
 })
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));
