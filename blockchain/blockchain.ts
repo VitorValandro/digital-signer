@@ -9,16 +9,10 @@ export type BlockData = {
 }
 
 export class SignTransaction {
-  public readonly name: string;
-  public readonly signer: string;
   public readonly fileHash: string;
-  private readonly transactionId: string;
 
-  constructor(name: string, signer: string, fileHash: string) {
-    this.name = name;
-    this.signer = signer;
+  constructor(fileHash: string) {
     this.fileHash = fileHash;
-    this.transactionId = uuid().split('-').join('-');
   }
 }
 
@@ -73,8 +67,8 @@ export class Blockchain {
     return this.chain[this.chain.length - 1];
   }
 
-  createNewTransaction(name: string, signer: string, fileHash: string): SignTransaction {
-    return new SignTransaction(name, signer, fileHash);
+  createNewTransaction(fileHash: string): SignTransaction {
+    return new SignTransaction(fileHash);
   }
 
   addNewTransaction(transaction: SignTransaction): number {
