@@ -10,6 +10,7 @@ import SignPDF from '../sign/signPdf';
 import { storageProvider } from '../providers/storage.provider';
 import { getFileExtension, parseFormDataWithFiles } from '../helpers/utils';
 import { drawSignatureOnFile } from '../sign/drawSignatureOnFile';
+import { createTransactionOnBlockchain } from '../sign/createTransactionOnBlockchain';
 
 export const signDocument = async (req: AuthorizedRequest, res: Response) => {
   const newSignSchema = z.array(
@@ -110,6 +111,10 @@ const saveSignedDocument = async (documentId: string | undefined) => {
   const pdfBuffer = await pdfMetadata.signPDF();
   const signedFileName = `signed_${fileName}`;
   const signedDocumentUrl = await storageProvider.save(signedFileName, pdfBuffer, 'signed-documents');
+
+  const { fileName: _, file: signedFile } = await storageProvider.download(signedDocumentUrl);
+
+  await createTransactionOnBlockchain(signedFile);
 
   await prisma.document.update({
     where: {
