@@ -1,3 +1,4 @@
+import DocumentCard from "@/components/DocumentCard";
 import Sidebar from "@/components/Sidebar";
 
 export default function Home() {
@@ -6,9 +7,10 @@ export default function Home() {
       <Sidebar />
       <div className="p-16 sm:ml-64">
         <div className="p-4 flex items-center mt-5">
-          <h1 className="text-4xl">Seus documentos</h1>
+          <h1 className="text-4xl font-light">Seus documentos</h1>
         </div>
         <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-5">
+          <DocumentCard progress={33} />
           <div className="grid grid-cols-3 gap-4 mb-4">
             <div className="flex items-center justify-center h-24 rounded bg-gray-50 dark:bg-gray-800">
               <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
