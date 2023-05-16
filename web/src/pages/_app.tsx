@@ -1,3 +1,4 @@
+import DocumentContextProvider from "@/contexts/DocumentContext";
 import "../styles/globals.css";
 import type {AppProps} from "next/app";
 import {useEffect} from "react";
@@ -10,5 +11,9 @@ export default function App({Component, pageProps}: AppProps) {
       import.meta.url
     ).toString();
   }, []);
-  return <Component {...pageProps} />;
+  return (
+    <DocumentContextProvider>
+      <Component {...pageProps} />
+    </DocumentContextProvider>
+  );
 }

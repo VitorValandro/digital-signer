@@ -1,35 +1,20 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Document, Page} from "react-pdf";
+import {Document, Page, pdfjs} from "react-pdf";
 import useWindowSize from "../hooks/useWindowDimensions";
-import {storageProvider} from "@/storage/storageProvider";
+import {useDocumentContext} from "@/contexts/DocumentContext";
 
 interface Props {
-  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
-  setPositions: React.Dispatch<React.SetStateAction<DOMRect | null>>;
-  documentUrl: string;
+  fileBuffer: ArrayBufferLike;
 }
 
-export default function PDFDocument({
-  setCurrentPage,
-  setPositions,
-  documentUrl,
-}: Props) {
+export default function PDFDocument({fileBuffer}: Props) {
+  const [file, setFile] = useState<{data: ArrayBufferLike}>();
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const {width, height} = useWindowSize();
+
+  const {positions, setPositions} = useDocumentContext();
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-
-  const [file, setFile] = useState<ArrayBufferLike>();
-
-  useEffect(() => {
-    const getFile = async () => {
-      const {file, fileName} = await storageProvider.download(documentUrl);
-
-      setFile(file.buffer);
-    };
-
-    getFile();
-  }, [documentUrl]);
 
   function onDocumentLoadSuccess({numPages}: {numPages: number}) {
     setNumPages(numPages);
@@ -51,6 +36,10 @@ export default function PDFDocument({
     const canvasRect = canvasRef.current?.getBoundingClientRect();
     if (canvasRect) setPositions(canvasRect);
   }, [setPositions]);
+
+  useEffect(() => {
+    setFile({data: fileBuffer});
+  }, [fileBuffer]);
 
   useEffect(() => {
     storePagePositions();
@@ -111,34 +100,27 @@ export default function PDFDocument({
           </button>
         </div>
 
-        {file ? (
-          <Document
-            file={{data: file}}
-            onLoadSuccess={onDocumentLoadSuccess}
-            loading={
-              <DocumentLoadingSpinner message="Carregando documento..." />
-            }
-          >
-            <Page
-              width={800}
-              canvasRef={canvasRef}
-              pageNumber={pageNumber}
-              renderTextLayer={false}
-              renderAnnotationLayer={false}
-              onRenderSuccess={storePagePositions}
-            />
-          </Document>
-        ) : (
-          <>
-            <DocumentLoadingSpinner message="Fazendo download do arquivo..." />
-          </>
-        )}
+        <Document
+          className="flex relative content-center items-center min-h-full"
+          file={file}
+          onLoadSuccess={onDocumentLoadSuccess}
+          loading={<DocumentLoadingSpinner message="Carregando documento..." />}
+        >
+          <Page
+            width={800}
+            canvasRef={canvasRef}
+            pageNumber={pageNumber}
+            renderTextLayer={false}
+            renderAnnotationLayer={false}
+            onRenderSuccess={storePagePositions}
+          />
+        </Document>
       </div>
     </>
   );
 }
 
-function DocumentLoadingSpinner({message}: {message: string}) {
+export function DocumentLoadingSpinner({message}: {message: string}) {
   return (
     <>
       <div
