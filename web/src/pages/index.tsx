@@ -1,8 +1,15 @@
+import {useEffect} from "react";
 import DocumentCard from "../components/DocumentCard";
 import Sidebar from "../components/Sidebar";
 import Link from "next/link";
+import api from "@/services/api";
 
 export default function Home() {
+  useEffect(() => {
+    const fetch = async () => await api.get("/document");
+
+    fetch();
+  }, []);
   return (
     <>
       <Sidebar />

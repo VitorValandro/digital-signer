@@ -1,8 +1,10 @@
+import "react-toastify/dist/ReactToastify.css";
 import DocumentContextProvider from "@/contexts/DocumentContext";
 import "../styles/globals.css";
 import type {AppProps} from "next/app";
 import {useEffect} from "react";
 import {pdfjs} from "react-pdf";
+import {ToastContainer} from "react-toastify";
 
 export default function App({Component, pageProps}: AppProps) {
   useEffect(() => {
@@ -14,6 +16,7 @@ export default function App({Component, pageProps}: AppProps) {
   return (
     <DocumentContextProvider>
       <Component {...pageProps} />
+      <ToastContainer />
     </DocumentContextProvider>
   );
 }

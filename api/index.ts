@@ -1,15 +1,18 @@
 import * as dotenv from 'dotenv';
 import express from "express";
-import { prisma } from "./prisma-client";
+import bodyParser from "body-parser";
+import cors from 'cors';
+
 import userRoutes from "./src/users/users.routes";
 import documentRoutes from "./src/documents/documents.routes";
 import signatureRoutes from "./src/signatures/signatures.routes";
-import bodyParser from "body-parser";
 import { storageProvider } from './src/providers/storage.provider';
+import { prisma } from "./prisma-client";
 
 dotenv.config();
 
 const app = express();
+app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());

@@ -14,24 +14,26 @@ export const createUser = async (req: Request, res: Response) => {
 
   type CreateUserDto = z.infer<typeof UserDto>;
 
-  const user = req.body as CreateUserDto;
+  let user = req.body as CreateUserDto;
   try {
-    UserDto.parse(user);
+    user = UserDto.parse(user);
   }
   catch (err) {
+    console.error(err);
     if (err instanceof z.ZodError) return res.status(400).json({ message: 'Formulário inválido' })
     return res.status(500).json({ error: err })
   }
 
   try {
     user.password = await bcrypt.hash(user.password, 12);
-    const newUser = await prisma.user.create({
+    await prisma.user.create({
       data: user
     });
   }
   catch (err) {
+    console.error(err);
     if (err instanceof Prisma.PrismaClientKnownRequestError)
-      if (err.code === 'P2002') res.status(400).json({ message: 'Email já cadastrado' })
+      if (err.code === 'P2002') return res.status(400).json({ message: 'Email já cadastrado' })
 
     return res.status(500).json({ error: err })
   }
@@ -54,6 +56,7 @@ export const login = async (req: Request, res: Response) => {
     LoginDto.parse(dto);
   }
   catch (err) {
+    console.error(err);
     if (err instanceof z.ZodError) return res.status(400).json({ message: 'Formulário inválido' });
     return res.status(500).json({ error: err });
   }

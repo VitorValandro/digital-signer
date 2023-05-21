@@ -6,6 +6,10 @@
   --foreground-rgb: 30, 41, 59;
   --background-start: rgb(227, 232, 238);
   --background-end: #dfe4ea;
+
+  --toastify-color-success: #14b8a6;
+  --toastify-color-error: #f97316;
+  --toastify-color-warning: #f97316;
 }
 
 @media (prefers-color-scheme: dark) {
