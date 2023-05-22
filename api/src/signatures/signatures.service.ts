@@ -172,3 +172,37 @@ export const uploadSignatureAsset = async (req: AuthorizedRequest, res: Response
 
   return res.status(201).json({ signatureAsset });
 }
+
+export const deleteSignatureAsset = async (req: AuthorizedRequest, res: Response) => {
+  const signatureAssetSchema = z.object({
+    id: z.string().uuid()
+  });
+
+  type signatureAsset = z.infer<typeof signatureAssetSchema>;
+
+  req.body as signatureAsset;
+
+  try {
+    signatureAssetSchema.parse(req.body);
+  }
+  catch (err) {
+    if (err instanceof z.ZodError) return res.status(400).json({ message: 'Não foi possível deletar a assinatura. Identificador inválido.' })
+    return res.status(500).json({ error: err })
+  }
+
+  const asset = await prisma.signatureAsset.findUnique({
+    where: { id: req.body.id },
+    select: { id: true, signatureUrl: true },
+  });
+
+  if (!asset) return res.status(404).json({ message: 'Não foi possível deletar a assinatura. Assinatura não encontrada.' });
+
+  try {
+    await storageProvider.delete(asset.signatureUrl);
+    await prisma.signatureAsset.delete({ where: { id: asset.id } })
+  } catch (err) {
+    return res.status(500).json({ error: err });
+  }
+
+  return res.status(204).send();
+}

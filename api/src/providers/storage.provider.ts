@@ -4,6 +4,7 @@ import { Storage, File } from 'megajs';
 interface StorageProvider {
   save: (fileName: string, file: Buffer, folderName: string | null,) => Promise<string>;
   download: (fileUrl: string) => Promise<{ fileName: string, file: Buffer }>;
+  delete: (fileUrl: string) => void;
 }
 
 class CloudStorageProvider implements StorageProvider {
@@ -30,6 +31,11 @@ class CloudStorageProvider implements StorageProvider {
     const buffer = await file.downloadBuffer({});
     return { fileName, file: buffer };
   };
+
+  async delete(fileUrl: string) {
+    const file = await this.storage.root.importFile(fileUrl);
+    await file.delete();
+  }
 }
 
 class LocalStorageProvider implements StorageProvider {
@@ -51,6 +57,16 @@ class LocalStorageProvider implements StorageProvider {
     const buffer = await fs.readFileSync(fileUrl);
     return { fileName, file: buffer };
   };
+
+  async delete(fileUrl: string) {
+    await fs.unlink(fileUrl, (err) => {
+      if (err && err.code == 'ENOENT') {
+        throw "Erro ao deletar arquivo. Arquivo não encontrado."
+      } else if (err) {
+        throw "Erro ao deletar arquivo"
+      }
+    });
+  }
 }
 
 export const storageProvider: StorageProvider =
