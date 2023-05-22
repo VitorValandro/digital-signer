@@ -12,6 +12,17 @@ import { getFileExtension, parseFormDataWithFiles } from '../helpers/utils';
 import { drawSignatureOnFile } from '../sign/drawSignatureOnFile';
 import { createTransactionOnBlockchain } from '../sign/createTransactionOnBlockchain';
 
+export const listUserAssets = async (req: AuthorizedRequest, res: Response) => {
+  if (!req.userId) return res.status(400).json({ message: "Identificação do usuário não encontrada." })
+  const assets = await prisma.signatureAsset.findMany({
+    where: {
+      signeeId: req.userId
+    }
+  });
+
+  return res.status(200).json(assets);
+}
+
 export const signDocument = async (req: AuthorizedRequest, res: Response) => {
   const newSignSchema = z.array(
     z.object({
