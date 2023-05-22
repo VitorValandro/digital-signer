@@ -28,6 +28,7 @@ export default function Home() {
                 return (
                   <SignatureCard
                     key={signature.id}
+                    id={signature.id}
                     signatureUrl={signature.signatureUrl}
                     createdAt={signature.createdAt}
                   />
