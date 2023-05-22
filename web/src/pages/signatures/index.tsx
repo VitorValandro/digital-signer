@@ -1,7 +1,16 @@
+import useSWR from "swr";
 import Sidebar from "../../components/Sidebar";
-import {AddSignatureCard, SignatureCard} from "../../components/SignatureCard";
+import {SignatureCard} from "../../components/SignatureCard";
+import {fetcher} from "@/services/api";
+import {SignatureAsset} from "@/services/types";
+import {AddSignatureCard} from "@/components/AddSignatureCard";
 
 export default function Home() {
+  const {data, error, isLoading} = useSWR<SignatureAsset[]>(
+    "/signatures/assets/",
+    fetcher
+  );
+
   return (
     <>
       <Sidebar />
@@ -14,42 +23,16 @@ export default function Home() {
         <div className="p-4 mt-5">
           <div className="grid justify-items-stretch grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 mb-4">
             <AddSignatureCard />
-            <SignatureCard />
-            <SignatureCard />
-          </div>
-          <div className="flex items-center justify-center h-32 mb-4 rounded bg-gray-50 dark:bg-gray-800">
-            <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-          </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-            <div className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-            <div className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-            <div className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-center h-48 mb-4 rounded bg-gray-50 dark:bg-gray-800">
-            <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-            <div className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-            <div className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
-            <div className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800">
-              <p className="text-2xl text-gray-400 dark:text-gray-500">+</p>
-            </div>
+            {data &&
+              data.map((signature) => {
+                return (
+                  <SignatureCard
+                    key={signature.id}
+                    signatureUrl={signature.signatureUrl}
+                    createdAt={signature.createdAt}
+                  />
+                );
+              })}
           </div>
         </div>
       </div>

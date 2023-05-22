@@ -44,16 +44,7 @@ export default function RegisterForm({toggleForm}: {toggleForm: () => void}) {
         const firstError: any = Object.values(err.format()).pop();
         message = firstError?._errors.pop() || message;
       }
-      toast.error(message, {
-        position: "bottom-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      toast.error(message);
 
       return;
     }
@@ -61,16 +52,7 @@ export default function RegisterForm({toggleForm}: {toggleForm: () => void}) {
     api
       .post("/user", data)
       .then((response) => {
-        toast.success("Criado com sucesso", {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        toast.success("Criado com sucesso");
 
         const loginData = {
           email: data.email,
@@ -90,16 +72,7 @@ export default function RegisterForm({toggleForm}: {toggleForm: () => void}) {
         const message =
           err.response.data?.message || "Ocorreu um erro ao acessar o servidor";
 
-        toast.warning(message, {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        toast.error(message);
       });
   };
 
