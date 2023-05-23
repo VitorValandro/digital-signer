@@ -16,7 +16,7 @@ const DEFAULT_SIGNATURE_HEIGHT = 50;
 export default function Home() {
   const [file, setFile] = useState<ArrayBufferLike>();
   const [allInvalid, setAllInvalid] = useState(false);
-  const {positions, signatures, setSignatures} = useDocumentContext();
+  const {positions, signatures, removeSignature} = useDocumentContext();
   const signaturesRefs = useRef<Array<Rnd>>([]);
 
   useEffect(() => {
@@ -29,10 +29,6 @@ export default function Home() {
     };
     getFile();
   }, []);
-
-  const removeSignature = (index: number) => {
-    setSignatures(signatures.filter((_, i) => i !== index));
-  };
 
   const checkSignatures = () => {
     if (!positions || !signaturesRefs.current) return;

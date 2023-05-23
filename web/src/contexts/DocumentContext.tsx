@@ -8,14 +8,16 @@ type DocumentContextProps = {
   positions: DOMRect | undefined;
   setPositions: (rect: DOMRect | undefined) => void;
   signatures: Array<Signature>;
-  setSignatures: (signatures: Array<Signature>) => void;
+  addSignature: (signature: Signature) => void;
+  removeSignature: (index: number) => void;
 };
 
 const DocumentContext = createContext<DocumentContextProps>({
   positions: undefined,
   setPositions: () => {},
   signatures: [],
-  setSignatures: () => {},
+  addSignature: (signature: Signature) => null,
+  removeSignature: (index: number) => null,
 });
 
 export const useDocumentContext = () => useContext(DocumentContext);
@@ -28,10 +30,24 @@ export default function DocumentContextProvider({
   const [positions, setPositions] = useState<DOMRect | undefined>(undefined);
   const [signatures, setSignatures] = useState<Array<Signature>>([]);
 
+  const addSignature = (newSignature: Signature) => {
+    setSignatures([...signatures, newSignature]);
+  };
+
+  const removeSignature = (index: number) => {
+    setSignatures(signatures.filter((_, i) => i !== index));
+  };
+
   return (
     <>
       <DocumentContext.Provider
-        value={{positions, setPositions, signatures, setSignatures}}
+        value={{
+          positions,
+          setPositions,
+          signatures,
+          addSignature,
+          removeSignature,
+        }}
       >
         {children}
       </DocumentContext.Provider>
