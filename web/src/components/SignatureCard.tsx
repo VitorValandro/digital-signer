@@ -1,5 +1,5 @@
 import Image from "next/image";
-import {storageProvider} from "../storage/storageProvider";
+import {storageProvider} from "../services/storage";
 import {useEffect, useState} from "react";
 import {ConfirmationModal} from "./ConfirmationModal";
 import api from "@/services/api";

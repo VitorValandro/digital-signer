@@ -1,11 +1,13 @@
+import {getUserId} from "@/services/auth";
 import {ChangeEvent, DragEvent, useRef, useState} from "react";
 import {toast} from "react-toastify";
-
-import api from "@/services/api";
-import {getUserId} from "@/services/auth";
 import LoadingSpinner from "./LoadingSpinner";
 
-export function AddSignatureCard() {
+type DocumentSelectProps = {
+  setBufferFile: (file: ArrayBuffer) => void;
+};
+
+export default function DocumentSelect({setBufferFile}: DocumentSelectProps) {
   const [dragActive, setDragActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -13,34 +15,21 @@ export function AddSignatureCard() {
   const handleFileSubmit = (files: FileList) => {
     if (!files?.length) return;
     const file = files[0];
-    if (!file.type.startsWith("image"))
-      toast.warning(
-        "Apenas arquivos de imagem podem ser adicionados como assinaturas"
-      );
 
-    const userId = getUserId();
-    if (!userId) return;
+    if (file.type !== "application/pdf")
+      toast.warning("Apenas arquivos PDF podem ser usados como documentos");
 
     setIsLoading(true);
-    const body = new FormData();
 
-    body.append("userId", userId);
-    body.append("signature", file);
-
-    api
-      .post("signatures/assets/upload", body)
-      .then((response) => {
-        toast.success("Assinatura adicionada!");
-
+    file
+      .arrayBuffer()
+      .then((buffer) => {
+        setBufferFile(buffer);
         setIsLoading(false);
       })
       .catch((err) => {
-        const message =
-          err.response.data?.message || "Ocorreu um erro ao acessar o servidor";
-
-        toast.warning(message);
-
         setIsLoading(false);
+        toast.warning("Ocorreu um erro ao fazer o upload do arquivo");
       });
   };
 
@@ -54,7 +43,6 @@ export function AddSignatureCard() {
     }
   };
 
-  // triggers when file is dropped
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -64,7 +52,6 @@ export function AddSignatureCard() {
     }
   };
 
-  // triggers when file is selected with click
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const target = e.target as HTMLInputElement;
@@ -73,17 +60,15 @@ export function AddSignatureCard() {
     }
   };
 
-  // triggers the input when the button is clicked
   const onButtonClick = () => {
     if (!inputRef?.current) return;
     inputRef.current.click();
   };
-
   return (
     <div
       onDragEnter={handleDrag}
-      className={`max-w-sm h-72 flex justify-center items-center bg-gradient-to-tr from-slate-100 via-white to-slate-50 rounded-lg border-dashed border-4 ${
-        dragActive ? "dragging border-orange-300" : "border-slate-300"
+      className={`flex items-center bg-slate-100 justify-center w-[800px] h-screen border-dashed border-2 ${
+        dragActive ? "border-orange-400" : "border-slate-400"
       }`}
     >
       {isLoading ? (
@@ -99,23 +84,28 @@ export function AddSignatureCard() {
           />
           <button
             onClick={onButtonClick}
-            className="flex justify-center items-center flex-col px-10 text-slate-500 dragging-text-orange-500"
+            className={`flex w-full h-full justify-center items-center flex-col px-10 ${
+              dragActive ? "text-orange-400" : "text-slate-400"
+            }`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              className="w-24 h-24 stroke-slate-300"
+              strokeWidth={1}
+              stroke="currentColor"
+              className="w-24 h-24"
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
+                d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
               />
             </svg>
-            <p>
-              Arraste a imagem da assinatura ou clique aqui para selecioná-la
+
+            <p className="font-medium mt-5">
+              Arraste o arquivo PDF do documento ou clique aqui para
+              selecioná-lo
             </p>
           </button>
 

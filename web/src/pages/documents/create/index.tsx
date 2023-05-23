@@ -1,10 +1,11 @@
+import {Rnd} from "react-rnd";
+import {useRef, useState} from "react";
+
 import PDFDocument, {DocumentLoadingSpinner} from "@/components/PDFDocument";
 import Sidebar from "@/components/Sidebar";
-import {Rnd} from "react-rnd";
-import {useEffect, useRef, useState} from "react";
-import {storageProvider} from "@/services/storage";
 import {useDocumentContext} from "@/contexts/DocumentContext";
 import {SignaturesAside} from "@/components/SignaturesAside";
+import DocumentSelect from "@/components/DocumentSelect";
 import {
   getElementPositions,
   validateAllSignatures,
@@ -18,17 +19,6 @@ export default function Home() {
   const [allInvalid, setAllInvalid] = useState(false);
   const {positions, signatures, setSignatures} = useDocumentContext();
   const signaturesRefs = useRef<Array<Rnd>>([]);
-
-  useEffect(() => {
-    const getFile = async () => {
-      const {file, fileName} = await storageProvider.download(
-        "https://mega.nz/file/4EN21bZJ#L-BSTZC5tzRqi-V-9BfWh93gyAZO_v-8iVUL_iCmRd0"
-      );
-
-      //setFile(file.buffer);
-    };
-    getFile();
-  }, []);
 
   const removeSignature = (index: number) => {
     setSignatures(signatures.filter((_, i) => i !== index));
@@ -49,13 +39,11 @@ export default function Home() {
     <>
       <Sidebar />
       <div className="p-4 sm:p-16 sm:ml-64">
-        <div className="p-4 z-0 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-5">
+        <div className="p-4 z-0 border-2 border-gray-200 border-dashed rounded-lg">
           {file ? (
             <PDFDocument fileBuffer={file} />
           ) : (
-            <>
-              <DocumentLoadingSpinner message="Fazendo download do arquivo..." />
-            </>
+            <DocumentSelect setBufferFile={setFile} />
           )}
         </div>
         {signatures.map((signature, index) => {
