@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createUser, login } from './users.service';
+import { createUser, findUserByEmail, login } from './users.service';
 import { authMiddleware } from './users.middleware';
 
 const router = Router();
@@ -7,6 +7,8 @@ const router = Router();
 router.get('/', authMiddleware, (req, res) => {
   res.send('Hello world');
 })
+
+router.get('/:email', findUserByEmail)
 
 router.post('/', createUser);
 

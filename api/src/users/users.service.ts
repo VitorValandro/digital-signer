@@ -5,6 +5,25 @@ import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 
+export const findUserByEmail = async (req: Request, res: Response) => {
+  const emailSchema = z.string().email();
+  const { email } = req.params;
+
+  try {
+    emailSchema.parse(email);
+  }
+  catch (err) {
+    console.error(err);
+    if (err instanceof z.ZodError) return res.status(400).json({ message: "Email inválido" })
+    return res.status(500).json({ error: err })
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return res.status(400).json({ message: "Nenhum usuário cadastrado com esse email" })
+
+  return res.status(200).json(user);
+}
+
 export const createUser = async (req: Request, res: Response) => {
   const UserDto = z.object({
     name: z.string(),
