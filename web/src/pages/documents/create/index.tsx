@@ -1,7 +1,7 @@
 import {Rnd} from "react-rnd";
 import {useRef, useState} from "react";
 
-import PDFDocument, {DocumentLoadingSpinner} from "@/components/PDFDocument";
+import PDFDocument from "@/components/PDFDocument";
 import Sidebar from "@/components/Sidebar";
 import {useDocumentContext} from "@/contexts/DocumentContext";
 import {SignaturesAside} from "@/components/SignaturesAside";
@@ -17,8 +17,25 @@ const DEFAULT_SIGNATURE_HEIGHT = 50;
 export default function Home() {
   const [file, setFile] = useState<ArrayBufferLike>();
   const [allInvalid, setAllInvalid] = useState(false);
-  const {positions, signatures, removeSignature} = useDocumentContext();
+  const {positions, signatures, removeSignature, updateSignature} =
+    useDocumentContext();
   const signaturesRefs = useRef<Array<Rnd>>([]);
+
+  const updateSignaturePosition = (event: unknown, index: number) => {
+    const element = event as {target: HTMLElement};
+    if (!element.target) return;
+
+    const rect = element.target.getBoundingClientRect();
+    const updatedSignature = {
+      x: rect.x - (positions?.x || 0),
+      y: rect.y - (positions?.y || 0),
+      width: rect.width,
+      height: rect.height,
+      pageIndex: 0,
+    };
+    updateSignature(index, updatedSignature);
+    checkSignatures();
+  };
 
   const checkSignatures = () => {
     if (!positions || !signaturesRefs.current) return;
@@ -52,8 +69,8 @@ export default function Home() {
               className={`z-100 bg-transparent border-dashed border-2 ${
                 allInvalid ? "border-orange-500" : "border-slate-600"
               } p-3`}
-              onDragStop={checkSignatures}
-              onResizeStop={checkSignatures}
+              onDragStop={(e) => updateSignaturePosition(e, index)}
+              onResizeStop={(e) => updateSignaturePosition(e, index)}
               default={{
                 x: positions?.x || 0,
                 y: positions?.y || 0,

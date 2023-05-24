@@ -50,7 +50,7 @@ export function SignaturesAside() {
 
         {signatures.map((signature, index) => {
           return (
-            <div key={index}>
+            <div key={index} className="border-b-2 border-dashed">
               <div className="inline-flex w-full px-5 justify-evenly items-center">
                 <p className="font-sm text-slate-500">{signature.email}</p>
                 <button
@@ -72,6 +72,18 @@ export function SignaturesAside() {
                     />
                   </svg>
                 </button>
+              </div>
+              <div className="grid grid-cols-2 gap-x-0 lg:grid-cols-4 text-xs mt-2 p-3">
+                <span className="font-medium">x:</span>
+                <span>{signature?.x?.toFixed(2) || 0}</span>
+                <span className="font-medium">y:</span>
+                <span>{signature?.y?.toFixed(2) || 0}</span>
+                <span className="font-medium">altura:</span>
+                <span>{signature?.height?.toFixed(2) || 0}</span>
+                <span className="font-medium">largura:</span>
+                <span>{signature?.width?.toFixed(2) || 0}</span>
+                <span className="font-medium">página nº:</span>
+                <span>{signature?.pageIndex + 1 || 0}</span>
               </div>
             </div>
           );

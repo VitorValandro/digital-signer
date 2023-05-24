@@ -2,6 +2,11 @@ import React, {ReactNode, createContext, useContext, useState} from "react";
 
 type Signature = {
   email: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  pageIndex: number;
 };
 
 type DocumentContextProps = {
@@ -10,6 +15,10 @@ type DocumentContextProps = {
   signatures: Array<Signature>;
   addSignature: (signature: Signature) => void;
   removeSignature: (index: number) => void;
+  updateSignature: (
+    index: number,
+    updatedSignature: Partial<Signature>
+  ) => void;
 };
 
 const DocumentContext = createContext<DocumentContextProps>({
@@ -18,6 +27,8 @@ const DocumentContext = createContext<DocumentContextProps>({
   signatures: [],
   addSignature: (signature: Signature) => null,
   removeSignature: (index: number) => null,
+  updateSignature: (index: number, updatedSignature: Partial<Signature>) =>
+    null,
 });
 
 export const useDocumentContext = () => useContext(DocumentContext);
@@ -34,6 +45,18 @@ export default function DocumentContextProvider({
     setSignatures([...signatures, newSignature]);
   };
 
+  const updateSignature = (
+    index: number,
+    updatedSignature: Partial<Signature>
+  ) => {
+    const newSignaturesArray = signatures.map((signature, i) => {
+      if (i === index) return {...signature, ...updatedSignature};
+      return signature;
+    });
+
+    setSignatures(newSignaturesArray);
+  };
+
   const removeSignature = (index: number) => {
     setSignatures(signatures.filter((_, i) => i !== index));
   };
@@ -47,6 +70,7 @@ export default function DocumentContextProvider({
           signatures,
           addSignature,
           removeSignature,
+          updateSignature,
         }}
       >
         {children}
