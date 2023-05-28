@@ -80,7 +80,7 @@ export default function DocumentSelect({setBufferFile}: DocumentSelectProps) {
             type="file"
             className="hidden"
             onChange={handleChange}
-            accept="image/*"
+            accept="application/pdf"
           />
           <button
             onClick={onButtonClick}

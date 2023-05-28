@@ -17,22 +17,23 @@ const DEFAULT_SIGNATURE_HEIGHT = 50;
 export default function Home() {
   const [file, setFile] = useState<ArrayBufferLike>();
   const [allInvalid, setAllInvalid] = useState(false);
-  const {positions, signatures, removeSignature, updateSignature} =
+  const {positions, signatures, removeSignature, updateSignature, pageNumber} =
     useDocumentContext();
   const signaturesRefs = useRef<Array<Rnd>>([]);
 
   const updateSignaturePosition = (event: unknown, index: number) => {
-    const element = event as {target: HTMLElement};
-    if (!element.target) return;
+    const ref = signaturesRefs.current[index];
+    if (!ref || !positions) return;
 
-    const rect = element.target.getBoundingClientRect();
+    const absolutePosition = ref.getDraggablePosition();
+
     const updatedSignature = {
-      x: rect.x - (positions?.x || 0),
-      y: rect.y - (positions?.y || 0),
-      width: rect.width,
-      height: rect.height,
-      pageIndex: 0,
+      x: absolutePosition.x - positions.x,
+      y: absolutePosition.y - positions.y,
+      width: ref?.resizableElement.current?.offsetWidth,
+      height: ref?.resizableElement.current?.offsetHeight,
     };
+
     updateSignature(index, updatedSignature);
     checkSignatures();
   };
@@ -60,60 +61,67 @@ export default function Home() {
           )}
         </div>
         {signatures.map((signature, index) => {
-          return (
-            <Rnd
-              key={index}
-              ref={(el) => {
-                if (el) signaturesRefs.current[index] = el;
-              }}
-              className={`z-100 bg-transparent border-dashed border-2 ${
-                allInvalid ? "border-orange-500" : "border-slate-600"
-              } p-3`}
-              onDragStop={(e) => updateSignaturePosition(e, index)}
-              onResizeStop={(e) => updateSignaturePosition(e, index)}
-              default={{
-                x: positions?.x || 0,
-                y: positions?.y || 0,
-                width: DEFAULT_SIGNATURE_WIDTH,
-                height: DEFAULT_SIGNATURE_HEIGHT,
-              }}
-              bounds=".react-pdf__Page__canvas"
-            >
-              <span
-                data-ui={`${allInvalid ? "invalid" : ""}`}
-                className="absolute -top-5 left-0 text-slate-400 data-invalid:text-orange-400 font-medium text-sm whitespace-nowrap"
-              >
-                Assinatura {index + 1}
-              </span>
-              <span
-                data-ui={`${allInvalid ? "invalid" : ""}`}
-                className="absolute -bottom-5 left-0 text-slate-400 data-invalid:text-orange-400 font-medium text-sm"
-              >
-                {signature.email}
-              </span>
-              <button
-                onClick={() => {
-                  removeSignature(index);
+          if (signature.pageIndex == pageNumber - 1)
+            return (
+              <Rnd
+                key={index}
+                ref={(el) => {
+                  if (el) signaturesRefs.current[index] = el;
                 }}
-                className="absolute -top-5 -right-1"
+                className={`z-100 bg-transparent border-dashed border-2 ${
+                  allInvalid ? "border-orange-500" : "border-slate-600"
+                } p-3`}
+                onDragStop={(e) => updateSignaturePosition(e, index)}
+                onResizeStop={(e) => updateSignaturePosition(e, index)}
+                default={{
+                  x:
+                    signature.x && positions
+                      ? positions.x + signature.x - 256
+                      : positions?.x || 0,
+                  y:
+                    signature.y && positions
+                      ? positions.y + signature.y
+                      : positions?.y || 0,
+                  width: signature.width || DEFAULT_SIGNATURE_WIDTH,
+                  height: signature.height || DEFAULT_SIGNATURE_HEIGHT,
+                }}
+                bounds=".react-pdf__Page__canvas"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
+                <span
                   data-ui={`${allInvalid ? "invalid" : ""}`}
-                  strokeWidth={2}
-                  className="w-5 h-5 stroke-slate-400 data-invalid:stroke-orange-400"
+                  className="absolute -top-5 left-0 text-slate-400 data-invalid:text-orange-400 font-medium text-sm whitespace-nowrap"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </Rnd>
-          );
+                  Assinatura {index + 1}
+                </span>
+                <span
+                  data-ui={`${allInvalid ? "invalid" : ""}`}
+                  className="absolute -bottom-5 left-0 text-slate-400 data-invalid:text-orange-400 font-medium text-sm"
+                >
+                  {signature.email}
+                </span>
+                <button
+                  onClick={() => {
+                    removeSignature(index);
+                  }}
+                  className="absolute -top-5 -right-1"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    data-ui={`${allInvalid ? "invalid" : ""}`}
+                    strokeWidth={2}
+                    className="w-5 h-5 stroke-slate-400 data-invalid:stroke-orange-400"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </Rnd>
+            );
         })}
       </div>
       <SignaturesAside />

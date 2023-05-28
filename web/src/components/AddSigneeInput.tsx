@@ -12,7 +12,7 @@ type AddSigneeInputProps = {
 
 export function AddSigneeInput({close}: AddSigneeInputProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const {addSignature} = useDocumentContext();
+  const {addSignature, pageNumber} = useDocumentContext();
 
   const emailSchema = z
     .string()
@@ -40,7 +40,10 @@ export function AddSigneeInput({close}: AddSigneeInputProps) {
     fetcher(`user/${email}`)
       .then((response) => {
         setIsLoading(false);
-        addSignature({email});
+        addSignature({
+          email,
+          pageIndex: pageNumber - 1,
+        });
         close();
       })
       .catch((err) => {

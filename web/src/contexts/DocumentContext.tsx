@@ -2,10 +2,10 @@ import React, {ReactNode, createContext, useContext, useState} from "react";
 
 type Signature = {
   email: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
   pageIndex: number;
 };
 
@@ -19,6 +19,8 @@ type DocumentContextProps = {
     index: number,
     updatedSignature: Partial<Signature>
   ) => void;
+  pageNumber: number;
+  setPageNumber: (page: number | ((prevPage: number) => number)) => void;
 };
 
 const DocumentContext = createContext<DocumentContextProps>({
@@ -29,6 +31,8 @@ const DocumentContext = createContext<DocumentContextProps>({
   removeSignature: (index: number) => null,
   updateSignature: (index: number, updatedSignature: Partial<Signature>) =>
     null,
+  pageNumber: 1,
+  setPageNumber: (page: number | ((prevPage: number) => number)) => null,
 });
 
 export const useDocumentContext = () => useContext(DocumentContext);
@@ -38,6 +42,7 @@ export default function DocumentContextProvider({
 }: {
   children: ReactNode;
 }) {
+  const [pageNumber, setPageNumber] = useState<number>(1);
   const [positions, setPositions] = useState<DOMRect | undefined>(undefined);
   const [signatures, setSignatures] = useState<Array<Signature>>([]);
 
@@ -71,6 +76,8 @@ export default function DocumentContextProvider({
           addSignature,
           removeSignature,
           updateSignature,
+          pageNumber,
+          setPageNumber,
         }}
       >
         {children}

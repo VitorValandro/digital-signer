@@ -10,10 +10,10 @@ interface Props {
 export default function PDFDocument({fileBuffer}: Props) {
   const [file, setFile] = useState<{data: ArrayBufferLike}>();
   const [numPages, setNumPages] = useState<number>(0);
-  const [pageNumber, setPageNumber] = useState(1);
   const {width, height} = useWindowSize();
 
-  const {positions, setPositions} = useDocumentContext();
+  const {positions, setPositions, pageNumber, setPageNumber} =
+    useDocumentContext();
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
   function onDocumentLoadSuccess({numPages}: {numPages: number}) {
@@ -21,7 +21,7 @@ export default function PDFDocument({fileBuffer}: Props) {
   }
 
   function changePage(offset: number) {
-    setPageNumber((prevPageNumber) => prevPageNumber + offset);
+    setPageNumber((page: number) => page + offset);
   }
 
   function previousPage() {
