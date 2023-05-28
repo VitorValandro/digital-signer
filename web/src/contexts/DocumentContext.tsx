@@ -1,7 +1,8 @@
 import React, {ReactNode, createContext, useContext, useState} from "react";
 
 type Signature = {
-  email: string;
+  signeeId: string;
+  email?: string;
   x?: number;
   y?: number;
   width?: number;

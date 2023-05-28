@@ -4,6 +4,7 @@ export default function LoadingSpinner({size}: {size?: number}) {
       <svg
         aria-hidden="true"
         className={`
+          inline
           w-${size?.toString() || "16"}
           h-${size?.toString() || "16"} 
           mr-2 text-gray-200 animate-spin fill-orange-300

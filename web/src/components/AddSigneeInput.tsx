@@ -5,6 +5,7 @@ import {z} from "zod";
 import LoadingSpinner from "./LoadingSpinner";
 import {useDocumentContext} from "@/contexts/DocumentContext";
 import {fetcher} from "@/services/api";
+import {AxiosResponse} from "axios";
 
 type AddSigneeInputProps = {
   close: () => void;
@@ -41,6 +42,7 @@ export function AddSigneeInput({close}: AddSigneeInputProps) {
       .then((response) => {
         setIsLoading(false);
         addSignature({
+          signeeId: response.id,
           email,
           pageIndex: pageNumber - 1,
         });
