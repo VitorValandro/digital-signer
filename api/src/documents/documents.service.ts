@@ -11,11 +11,15 @@ import { parseFormDataWithFiles } from '../helpers/utils';
 export const createDocument = async (req: AuthorizedRequest, res: Response) => {
   const DocumentDto = z.object({
     documentUrl: z.string().url(),
-    signees: z
+    signatures: z
       .array(
         z.object({
-          id: z.string().uuid(),
-          quantity: z.number().default(1),
+          x: z.number(),
+          y: z.number(),
+          width: z.number(),
+          height: z.number(),
+          pageIndex: z.number(),
+          signeeId: z.string().uuid()
         })
       )
       .min(1),
@@ -29,6 +33,7 @@ export const createDocument = async (req: AuthorizedRequest, res: Response) => {
     DocumentDto.parse(documentData);
   }
   catch (err) {
+    console.error(err);
     if (err instanceof z.ZodError) return res.status(400).json({ message: 'Formulário inválido' })
     return res.status(500).json({ error: err })
   }
@@ -42,16 +47,14 @@ export const createDocument = async (req: AuthorizedRequest, res: Response) => {
     },
   });
 
-  documentData.signees.map(async ({ id, quantity }) => {
-    for (let i = 0; i < quantity; i++) {
-      await prisma.signature.create({
-        data: {
-          documentId: document.id,
-          signeeId: id
-        }
-      });
-    };
-  });
+  await Promise.all(documentData.signatures.map((signature) => {
+    return prisma.signature.create({
+      data: {
+        documentId: document.id,
+        ...signature
+      }
+    });
+  }));
 
   return res
     .status(201)
