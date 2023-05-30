@@ -1,14 +1,28 @@
-import {useEffect} from "react";
 import DocumentCard from "../components/DocumentCard";
 import Sidebar from "../components/Sidebar";
 import Link from "next/link";
 import {fetcher} from "@/services/api";
-import {toast} from "react-toastify";
+
 import useSWR from "swr";
-import {Document} from "@/services/types";
+
+type DocumentByUser = {
+  id: string;
+  createdAt: string;
+  owner: {
+    name: string;
+  };
+  signatures: {
+    isSigned: boolean;
+    signedAt?: string;
+    signee: {
+      id: string;
+      name: string;
+    };
+  }[];
+}[];
 
 export default function Home() {
-  const {data, error, isLoading} = useSWR<Document>("document", fetcher);
+  const {data, error, isLoading} = useSWR<DocumentByUser>("document", fetcher);
 
   return (
     <>
@@ -19,7 +33,7 @@ export default function Home() {
             Seus documentos
           </h1>
           <button>
-            <Link href="/documents">Novo</Link>
+            <Link href="/documents/create">Novo</Link>
           </button>
         </div>
         <div className="min-h-screen p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-5">
@@ -27,8 +41,9 @@ export default function Home() {
             data.map((document) => {
               return (
                 <DocumentCard
-                  key={document.createdAt}
+                  key={document.id}
                   {...{
+                    id: document.id,
                     ownerName: document.owner.name,
                     createdAt: document.createdAt,
                     signatures: document.signatures,

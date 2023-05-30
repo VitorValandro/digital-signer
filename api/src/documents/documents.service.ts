@@ -101,6 +101,7 @@ export const listDocumentsByUser = async (req: AuthorizedRequest, res: Response)
           }]
       },
       select: {
+        id: true,
         createdAt: true,
         signatures: {
           select: {
@@ -108,6 +109,7 @@ export const listDocumentsByUser = async (req: AuthorizedRequest, res: Response)
             signedAt: true,
             signee: {
               select: {
+                id: true,
                 name: true
               }
             }
@@ -122,6 +124,69 @@ export const listDocumentsByUser = async (req: AuthorizedRequest, res: Response)
     });
 
     return res.status(200).json(documents)
+  } catch (err) {
+    console.error(err);
+    return res.json(500).json({ message: "Ocorreu um problema ao listar os documentos" });
+  }
+}
+
+export const getDocumentToSignById = async (req: AuthorizedRequest, res: Response) => {
+  const { userId } = req;
+  const { id } = req.params;
+  if (!id) return res.status(400).json({ message: "O identificador do documento não foi especificado" });
+
+  try {
+    const document = await prisma.document.findUnique({
+      where: {
+        id: id
+      },
+      include: {
+        signatures: {
+          where: {
+            isSigned: true
+          },
+          include: {
+            signee: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            },
+            signatureAsset: {
+              select: {
+                id: true,
+                signatureUrl: true
+              }
+            }
+          },
+        },
+        owner: true
+      }
+    });
+
+    const pendingSignatures = await prisma.signature.findMany({
+      where: {
+        documentId: id,
+        signeeId: userId,
+        isSigned: false
+      },
+      include: {
+        signee: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    })
+
+    const response = {
+      ...document, pendingSignatures
+    };
+
+    return res.status(200).json(response);
   } catch (err) {
     console.error(err);
     return res.json(500).json({ message: "Ocorreu um problema ao listar os documentos" });

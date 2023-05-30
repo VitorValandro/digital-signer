@@ -1,22 +1,28 @@
+import {getUserId} from "@/services/auth";
+import Link from "next/link";
 import {useEffect, useState} from "react";
 
 interface DocumentCardProps {
+  id: string;
   createdAt: string;
   ownerName: string;
   signatures: {
     isSigned: boolean;
     signedAt?: string;
     signee: {
+      id: string;
       name: string;
     };
   }[];
 }
 
 export default function DocumentCard({
+  id,
   createdAt,
   ownerName,
   signatures,
 }: DocumentCardProps) {
+  const [userId, setUserId] = useState<string>();
   const [width, setWidth] = useState(0);
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
 
@@ -32,12 +38,23 @@ export default function DocumentCard({
     setWidth(signaturesProgress);
   }, [signatures]);
 
+  useEffect(() => {
+    const id = getUserId();
+    if (!id) return;
+
+    setUserId(id);
+  }, [userId]);
+
   return (
     <div className="flex flex-col justify-between mb-4 rounded bg-gradient-to-t from-slate-100 to-slate-50 dark:bg-gray-800 border border-gray-200 rounded-lg shadow dark:border-gray-700 p-3">
       <div className="flex flex-col mb-4">
-        <h1 className="text-xl font-medium text-slate-800">
-          Título do documento
-        </h1>
+        <button className="text-xl font-medium text-slate-800">
+          {signatures.some((signature) => signature.signee.id == userId) ? (
+            <Link href={`/documents/sign/${id}`}>Título do documento</Link>
+          ) : (
+            <Link href={`/documents/view/${id}`}>Título do documento</Link>
+          )}
+        </button>
         <h3 className="text-sm text-slate-400 font-medium">
           Criado por {ownerName} em{" "}
           {new Date(createdAt).toLocaleDateString("pt-br")}
@@ -97,7 +114,7 @@ export default function DocumentCard({
               {signatures.map((signature) => {
                 return (
                   <li key={signature.signedAt}>
-                    {signature.isSigned ? (
+                    {signature.isSigned && signature.signedAt ? (
                       <div className="flex flex-row items-center">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -117,7 +134,10 @@ export default function DocumentCard({
                             {signature.signee.name}
                           </h3>
                           <h4 className="text-xs text-slate-400 p-0 m-0">
-                            Assinado 10/05/2023
+                            Assinado{" "}
+                            {new Date(signature.signedAt).toLocaleDateString(
+                              "pt-br"
+                            )}
                           </h4>
                         </div>
                       </div>
