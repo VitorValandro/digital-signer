@@ -81,3 +81,49 @@ export const uploadDocument = async (req: AuthorizedRequest, res: Response) => {
 
   return res.status(201).json({ fileName, storageUrl });
 };
+
+export const listDocumentsByUser = async (req: AuthorizedRequest, res: Response) => {
+  const { userId } = req;
+
+  try {
+    const documents = await prisma.document.findMany({
+      where: {
+        OR: [
+          {
+            ownerId: userId
+          },
+          {
+            signatures: {
+              some: {
+                signeeId: userId
+              }
+            }
+          }]
+      },
+      select: {
+        createdAt: true,
+        signatures: {
+          select: {
+            isSigned: true,
+            signedAt: true,
+            signee: {
+              select: {
+                name: true
+              }
+            }
+          },
+        },
+        owner: {
+          select: {
+            name: true
+          }
+        }
+      }
+    });
+
+    return res.status(200).json(documents)
+  } catch (err) {
+    console.error(err);
+    return res.json(500).json({ message: "Ocorreu um problema ao listar os documentos" });
+  }
+}
