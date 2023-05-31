@@ -10,8 +10,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import {storageProvider} from "@/services/storage";
 import {fetcher} from "@/services/api";
 import {useDocumentContext} from "@/contexts/DocumentContext";
-
-type SignatureAssetMap = Record<string, unknown>;
+import {AssetsAside} from "@/components/AssetsAside";
 
 type Signature = {
   id: string;
@@ -51,8 +50,8 @@ export default function SignDocumentPage() {
     fetcher
   );
 
-  const {pageNumber} = useDocumentContext();
   const [file, setFile] = useState<ArrayBufferLike>();
+  const [currentSelectedAsset, setCurrentSelectedAsset] = useState<string>();
 
   useEffect(() => {
     const getFile = async () => {
@@ -98,6 +97,11 @@ export default function SignDocumentPage() {
           )}
         </div>
       </div>
+      <AssetsAside
+        currentSelectedAsset={currentSelectedAsset}
+        setCurrentSelectedAsset={setCurrentSelectedAsset}
+        onSignaturesSubmit={() => {}}
+      />
     </>
   );
 }
@@ -127,7 +131,6 @@ function StaticSignature({signature}: {signature: Signature}) {
         top: `${positions.y + signature.y}px`,
         left: `${positions.x + signature.x}px`,
       }}
-      key={signature.id}
     >
       {imageUrl ? (
         <Image
@@ -155,7 +158,6 @@ function PendingSignature({pendingSignature}: {pendingSignature: Signature}) {
         top: `${positions.y + pendingSignature.y}px`,
         left: `${positions.x + pendingSignature.x}px`,
       }}
-      key={pendingSignature.id}
     >
       ASSINATURA PENDENTE
       {/* {imageUrl ? (
