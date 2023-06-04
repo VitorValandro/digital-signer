@@ -189,6 +189,45 @@ export const getDocumentToSignById = async (req: AuthorizedRequest, res: Respons
     return res.status(200).json(response);
   } catch (err) {
     console.error(err);
-    return res.json(500).json({ message: "Ocorreu um problema ao listar os documentos" });
+    return res.json(500).json({ message: "Ocorreu um problema ao buscar os detalhes para assinatura do documento" });
+  }
+}
+
+export const getDocumentToViewById = async (req: AuthorizedRequest, res: Response) => {
+  const { userId } = req;
+  const { id } = req.params;
+  if (!id) return res.status(400).json({ message: "O identificador do documento não foi especificado" });
+
+  try {
+    const document = await prisma.document.findUnique({
+      where: {
+        id: id
+      },
+      include: {
+        signatures: {
+          include: {
+            signee: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            },
+            signatureAsset: {
+              select: {
+                id: true,
+                signatureUrl: true
+              }
+            }
+          },
+        },
+        owner: true
+      }
+    });
+
+    return res.status(200).json(document);
+  } catch (err) {
+    console.error(err);
+    return res.json(500).json({ message: "Ocorreu um problema ao buscar os detalhes do documento para visualização" });
   }
 }
