@@ -8,9 +8,15 @@ import Sidebar from "@/components/Sidebar";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 import {storageProvider} from "@/services/storage";
-import {fetcher} from "@/services/api";
+import api, {fetcher} from "@/services/api";
 import {useDocumentContext} from "@/contexts/DocumentContext";
 import {AssetsAside} from "@/components/AssetsAside";
+import {toast} from "react-toastify";
+
+type SignatureAsset = {
+  id: string;
+  signatureUrl: string;
+};
 
 type Signature = {
   id: string;
@@ -21,14 +27,12 @@ type Signature = {
   height: number;
   x: number;
   y: number;
+  documentId?: string;
   signee: {
     name: string;
     email: string;
   };
-  signatureAsset: {
-    id: string;
-    signatureUrl: string;
-  };
+  signatureAsset: SignatureAsset;
 };
 
 type DocumentById = {
@@ -50,8 +54,14 @@ export default function SignDocumentPage() {
     fetcher
   );
 
+  const {pageNumber} = useDocumentContext();
   const [file, setFile] = useState<ArrayBufferLike>();
-  const [currentSelectedAsset, setCurrentSelectedAsset] = useState<string>();
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSigning, setIsSigning] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [signedSignatures, setSignedSignatures] = useState<Signature[]>([]);
+  const [currentSelectedAsset, setCurrentSelectedAsset] =
+    useState<SignatureAsset>();
 
   useEffect(() => {
     const getFile = async () => {
@@ -64,44 +74,178 @@ export default function SignDocumentPage() {
     getFile();
   }, [data]);
 
+  const submitSignatures = () => {
+    if (!data) return toast.warning("O documento não foi carregado");
+
+    const remainingSignatures =
+      data.pendingSignatures.length - signedSignatures.length;
+    if (remainingSignatures !== 0)
+      return toast.warning(
+        `Você ainda precisa preencher ${remainingSignatures} assinatura${
+          remainingSignatures > 1 ? "s" : ""
+        }`
+      );
+
+    setIsSubmitted(true);
+    setIsSigning(true);
+
+    const body = signedSignatures.map((signature) => {
+      const {documentId, signee, signatureAsset, ...properties} = signature;
+      return {...properties};
+    });
+
+    api
+      .post("signatures/sign", body)
+      .then((res) => {
+        setIsSigning(false);
+      })
+      .catch((err) => {
+        const message =
+          err.response?.data?.message ||
+          "Ocorreu um erro ao acessar o servidor";
+
+        setIsSigning(false);
+        setSubmitError(message);
+      });
+  };
+
   return (
     <>
       <Sidebar />
-      <div className="p-4 sm:p-16 sm:ml-64">
-        <div className="p-4 z-0 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-5">
-          {file ? (
+      {!isSubmitted ? (
+        <>
+          <div className="p-4 sm:p-16 sm:ml-64">
+            <div className="p-4 z-0 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-5">
+              {file ? (
+                <>
+                  <PDFDocument
+                    fileBuffer={file}
+                    highlightPreviousPage={data?.pendingSignatures.some(
+                      (signature) => signature.pageIndex + 1 < pageNumber
+                    )}
+                    highlightNextPage={data?.pendingSignatures.some(
+                      (signature) => signature.pageIndex + 1 > pageNumber
+                    )}
+                  />
+                  {/* ASSINATURAS JÁ ASSINADAS */}
+                  {data?.signatures &&
+                    data.signatures.map((signature) => {
+                      return (
+                        <StaticSignature
+                          key={signature.id}
+                          signature={signature}
+                        />
+                      );
+                    })}
+                  {/* ASSINATURAS PENDENTES */}
+                  {data?.pendingSignatures &&
+                    currentSelectedAsset &&
+                    data.pendingSignatures.map((pendingSignature) => {
+                      return (
+                        <PendingSignature
+                          key={pendingSignature.id}
+                          pendingSignature={pendingSignature}
+                          setSignedSignatures={setSignedSignatures}
+                          asset={currentSelectedAsset}
+                        />
+                      );
+                    })}
+                </>
+              ) : (
+                <>
+                  <DocumentLoadingSpinner message="Fazendo download do arquivo..." />
+                </>
+              )}
+            </div>
+          </div>
+          <AssetsAside
+            currentSelectedAsset={currentSelectedAsset}
+            setCurrentSelectedAsset={setCurrentSelectedAsset}
+            onSignaturesSubmit={submitSignatures}
+          />
+        </>
+      ) : (
+        <div className="w-5/6 h-screen p-4 sm:p-16 sm:ml-64 flex flex-col items-center justify-center">
+          <div className="w-[400px] grid grid-cols-[20%_80%] items-center gap-y-10">
+            {isSigning ? (
+              <>
+                <LoadingSpinner size={14} />{" "}
+                <p className="font-medium text-lg text-slate-600">
+                  Submetendo suas assinaturas e assinando o documento
+                </p>
+              </>
+            ) : !submitError ? (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1}
+                  className="w-10 h-10 stroke-orange-400"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.5 12.75l6 6 9-13.5"
+                  />
+                </svg>
+                <p className="font-medium text-lg text-slate-600">
+                  Assinaturas submetidas com sucesso
+                </p>
+              </>
+            ) : (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1}
+                  stroke="currentColor"
+                  className="w-10 h-10 stroke-orange-400"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                <p className="font-medium text-lg text-slate-600">
+                  {submitError}
+                </p>
+              </>
+            )}
+          </div>
+
+          {!isSigning && (
             <>
-              <PDFDocument fileBuffer={file} />
-              {/* ASSINATURAS JÁ ASSINADAS */}
-              {data?.signatures &&
-                data.signatures.map((signature) => {
-                  return (
-                    <StaticSignature key={signature.id} signature={signature} />
-                  );
-                })}
-              {/* ASSINATURAS PENDENTES */}
-              {data?.pendingSignatures &&
-                data.pendingSignatures.map((pendingSignature) => {
-                  return (
-                    <PendingSignature
-                      key={pendingSignature.id}
-                      pendingSignature={pendingSignature}
-                    />
-                  );
-                })}
-            </>
-          ) : (
-            <>
-              <DocumentLoadingSpinner message="Fazendo download do arquivo..." />
+              <button
+                onClick={() => {
+                  router.push("/");
+                }}
+                type="button"
+                className="mt-32 text-slate-600 bg-transparent disabled:text-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6 mr-2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                  />
+                </svg>
+
+                <p className="text-base">Voltar aos seus documentos</p>
+              </button>
             </>
           )}
         </div>
-      </div>
-      <AssetsAside
-        currentSelectedAsset={currentSelectedAsset}
-        setCurrentSelectedAsset={setCurrentSelectedAsset}
-        onSignaturesSubmit={() => {}}
-      />
+      )}
     </>
   );
 }
@@ -130,14 +274,14 @@ function StaticSignature({signature}: {signature: Signature}) {
       style={{
         top: `${positions.y + signature.y}px`,
         left: `${positions.x + signature.x}px`,
+        width: `${signature.width}px`,
+        height: `${signature.height}px`,
       }}
     >
       {imageUrl ? (
         <Image
-          className="rounded-t-lg object-contain"
+          fill
           src={imageUrl}
-          width={signature.width}
-          height={signature.height}
           alt={`Assinatura de ${signature.signee.name}`}
         />
       ) : (
@@ -149,28 +293,73 @@ function StaticSignature({signature}: {signature: Signature}) {
   );
 }
 
-function PendingSignature({pendingSignature}: {pendingSignature: Signature}) {
+function PendingSignature({
+  pendingSignature,
+  setSignedSignatures,
+  asset,
+}: {
+  pendingSignature: Signature;
+  setSignedSignatures: React.Dispatch<React.SetStateAction<Signature[]>>;
+  asset: SignatureAsset;
+}) {
   const {positions, pageNumber} = useDocumentContext();
+  const [isSigned, setIsSigned] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+
+  const sign = async () => {
+    const newSignedSignature = {
+      ...pendingSignature,
+      signatureAsset: asset,
+      signatureAssetId: asset.id,
+      isSigned: true,
+    };
+
+    setSignedSignatures((signedSignatures) => [
+      ...signedSignatures,
+      newSignedSignature,
+    ]);
+
+    setIsSigned(true);
+
+    const {file, fileName} = await storageProvider.download(
+      newSignedSignature.signatureAsset.signatureUrl
+    );
+
+    const blob = new Blob([file]);
+    const url = URL.createObjectURL(blob);
+    setImageUrl(url);
+  };
+
   return positions && pageNumber === pendingSignature.pageIndex + 1 ? (
     <div
-      className="absolute"
+      className={`absolute flex justify-center items-center border-2 ${
+        isSigned ? "border-gray-200" : "border-orange-300"
+      } border-dashed rounded-lg`}
       style={{
         top: `${positions.y + pendingSignature.y}px`,
         left: `${positions.x + pendingSignature.x}px`,
+        width: `${pendingSignature.width}px`,
+        height: `${pendingSignature.height}px`,
       }}
     >
-      ASSINATURA PENDENTE
-      {/* {imageUrl ? (
-        <Image
-          className="rounded-t-lg object-contain"
-          src={imageUrl}
-          width={pendingSignature.width}
-          height={pendingSignature.height}
-          alt={`Assinatura de ${pendingSignature.signee.name}`}
-        />
+      {isSigned ? (
+        imageUrl ? (
+          <Image
+            fill
+            src={imageUrl}
+            alt={`Assinatura de ${pendingSignature.signee.name}`}
+          />
+        ) : (
+          <LoadingSpinner size={8} />
+        )
       ) : (
-        <LoadingSpinner size={8} />
-      )} */}
+        <button
+          onClick={sign}
+          className="px-2 py-1 bg-orange-400 text-slate-50 rounded-md text-xs font-medium"
+        >
+          ASSINAR
+        </button>
+      )}
     </div>
   ) : (
     <></>

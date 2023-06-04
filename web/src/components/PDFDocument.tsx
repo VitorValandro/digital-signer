@@ -5,9 +5,15 @@ import {useDocumentContext} from "@/contexts/DocumentContext";
 
 interface Props {
   fileBuffer: ArrayBufferLike;
+  highlightPreviousPage?: boolean;
+  highlightNextPage?: boolean;
 }
 
-export default function PDFDocument({fileBuffer}: Props) {
+export default function PDFDocument({
+  fileBuffer,
+  highlightPreviousPage,
+  highlightNextPage,
+}: Props) {
   const [file, setFile] = useState<{data: ArrayBufferLike}>();
   const [numPages, setNumPages] = useState<number>(0);
   const {width, height} = useWindowSize();
@@ -55,6 +61,12 @@ export default function PDFDocument({fileBuffer}: Props) {
             type="button"
             className="text-slate-500 bg-transparent disabled:text-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center"
           >
+            {highlightPreviousPage && (
+              <span className="relative flex h-3 w-3 mr-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-300 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-400"></span>
+              </span>
+            )}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -97,6 +109,12 @@ export default function PDFDocument({fileBuffer}: Props) {
                 d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
               />
             </svg>
+            {highlightNextPage && (
+              <span className="relative flex h-3 w-3 ml-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-300 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-400"></span>
+              </span>
+            )}
           </button>
         </div>
 

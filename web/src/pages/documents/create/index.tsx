@@ -18,7 +18,7 @@ import {useRouter} from "next/router";
 const DEFAULT_SIGNATURE_WIDTH = 200;
 const DEFAULT_SIGNATURE_HEIGHT = 50;
 
-export default function Home() {
+export default function CreateDocumentPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
