@@ -8,7 +8,7 @@ const sha256 = (data: BinaryLike) => {
 };
 
 export const createTransactionOnBlockchain = async (fileBuffer: Buffer) => {
-  if (!process.env.BLOCKCHAIN_ORIGIN_NODE) throw 'Não foi encontrado o endereço de acesso à blockchain';
+  if (!process.env.BLOCKCHAIN_ORIGIN_NODE) throw { message: 'Não foi encontrado o endereço de acesso à blockchain' };
   const fileHash = sha256(fileBuffer);
   console.log(`FILE HASH: ${fileHash}`);
 
@@ -24,6 +24,6 @@ export const createTransactionOnBlockchain = async (fileBuffer: Buffer) => {
     return response;
   } catch (err) {
     console.error(err);
-    throw 'Ocorreu um erro ao enviar a transação para a blockchain';
+    throw { message: 'Ocorreu um erro ao enviar a transação para a blockchain' };
   }
 }

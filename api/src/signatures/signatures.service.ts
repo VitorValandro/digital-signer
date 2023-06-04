@@ -33,7 +33,8 @@ export const signDocument = async (req: AuthorizedRequest, res: Response) => {
       x: z.number().positive(),
       y: z.number().positive(),
       pageIndex: z.number(),
-      signatureAssetId: z.string().uuid()
+      signatureAssetId: z.string().uuid(),
+      signeeId: z.string().uuid()
     }
     )).min(1);
 
@@ -52,7 +53,9 @@ export const signDocument = async (req: AuthorizedRequest, res: Response) => {
   try {
     const result = await Promise.all(
       sign.map(async (signBody) => {
-        const { signatureAssetId, ...body } = signBody;
+        const { signatureAssetId, signeeId, ...body } = signBody;
+
+        if (signeeId !== req.userId) throw { message: "Usuário sem permissão para submeter esta assinatura", status: 401 }
 
         return await prisma.signature.update({
           where: {
@@ -60,6 +63,7 @@ export const signDocument = async (req: AuthorizedRequest, res: Response) => {
           },
           data: {
             ...body,
+            signedAt: new Date(),
             signatureAsset: {
               connect: {
                 id: signatureAssetId
@@ -75,8 +79,10 @@ export const signDocument = async (req: AuthorizedRequest, res: Response) => {
       .json({ message: 'Nenhuma assinatura fornecida' });
 
     await saveSignedDocument(result[0]?.documentId);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    if (error.status === 401) return res.status(401).json({ message: error.message });
+    if (error.message) return res.status(500).json({ message: error.message });
     return res.status(500).json({ error: error })
   }
 
@@ -109,7 +115,7 @@ const saveSignedDocument = async (documentId: string | undefined) => {
       if (err.code === 'P2025')
         message = "Documento não encontrado";
     }
-    throw message;
+    throw { message };
   });
 
   if (document.signatures.some(signature => !signature.isSigned)) return;
