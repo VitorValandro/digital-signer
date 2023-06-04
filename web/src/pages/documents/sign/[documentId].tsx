@@ -1,5 +1,4 @@
 import {useEffect, useState} from "react";
-import Image from "next/image";
 import {useRouter} from "next/router";
 import useSWR from "swr";
 
@@ -12,40 +11,8 @@ import api, {fetcher} from "@/services/api";
 import {useDocumentContext} from "@/contexts/DocumentContext";
 import {AssetsAside} from "@/components/AssetsAside";
 import {toast} from "react-toastify";
-
-type SignatureAsset = {
-  id: string;
-  signatureUrl: string;
-};
-
-type Signature = {
-  id: string;
-  isSigned: boolean;
-  signedAt?: string;
-  pageIndex: number;
-  width: number;
-  height: number;
-  x: number;
-  y: number;
-  documentId?: string;
-  signee: {
-    name: string;
-    email: string;
-  };
-  signatureAsset: SignatureAsset;
-};
-
-type DocumentById = {
-  id: string;
-  blankDocumentUrl: string;
-  signedDocumnetUrl: string;
-  owner: {
-    id: string;
-    email: string;
-  };
-  signatures: Signature[];
-  pendingSignatures: Signature[];
-};
+import StaticSignature from "@/components/StaticSignature";
+import PendingSignature from "@/components/PendingSignature";
 
 export default function SignDocumentPage() {
   const router = useRouter();
@@ -247,121 +214,5 @@ export default function SignDocumentPage() {
         </div>
       )}
     </>
-  );
-}
-
-function StaticSignature({signature}: {signature: Signature}) {
-  const {positions, pageNumber} = useDocumentContext();
-  const [imageUrl, setImageUrl] = useState("");
-
-  useEffect(() => {
-    const getImageFile = async () => {
-      const {file, fileName} = await storageProvider.download(
-        signature.signatureAsset.signatureUrl
-      );
-
-      const blob = new Blob([file]);
-      const url = URL.createObjectURL(blob);
-      setImageUrl(url);
-    };
-
-    getImageFile();
-  }, [signature]);
-
-  return positions && pageNumber === signature.pageIndex + 1 ? (
-    <div
-      className="absolute"
-      style={{
-        top: `${positions.y + signature.y}px`,
-        left: `${positions.x + signature.x}px`,
-        width: `${signature.width}px`,
-        height: `${signature.height}px`,
-      }}
-    >
-      {imageUrl ? (
-        <Image
-          fill
-          src={imageUrl}
-          alt={`Assinatura de ${signature.signee.name}`}
-        />
-      ) : (
-        <LoadingSpinner size={8} />
-      )}
-    </div>
-  ) : (
-    <></>
-  );
-}
-
-function PendingSignature({
-  pendingSignature,
-  setSignedSignatures,
-  asset,
-}: {
-  pendingSignature: Signature;
-  setSignedSignatures: React.Dispatch<React.SetStateAction<Signature[]>>;
-  asset: SignatureAsset;
-}) {
-  const {positions, pageNumber} = useDocumentContext();
-  const [isSigned, setIsSigned] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
-
-  const sign = async () => {
-    const newSignedSignature = {
-      ...pendingSignature,
-      signatureAsset: asset,
-      signatureAssetId: asset.id,
-      isSigned: true,
-    };
-
-    setSignedSignatures((signedSignatures) => [
-      ...signedSignatures,
-      newSignedSignature,
-    ]);
-
-    setIsSigned(true);
-
-    const {file, fileName} = await storageProvider.download(
-      newSignedSignature.signatureAsset.signatureUrl
-    );
-
-    const blob = new Blob([file]);
-    const url = URL.createObjectURL(blob);
-    setImageUrl(url);
-  };
-
-  return positions && pageNumber === pendingSignature.pageIndex + 1 ? (
-    <div
-      className={`absolute flex justify-center items-center border-2 ${
-        isSigned ? "border-gray-200" : "border-orange-300"
-      } border-dashed rounded-lg`}
-      style={{
-        top: `${positions.y + pendingSignature.y}px`,
-        left: `${positions.x + pendingSignature.x}px`,
-        width: `${pendingSignature.width}px`,
-        height: `${pendingSignature.height}px`,
-      }}
-    >
-      {isSigned ? (
-        imageUrl ? (
-          <Image
-            fill
-            src={imageUrl}
-            alt={`Assinatura de ${pendingSignature.signee.name}`}
-          />
-        ) : (
-          <LoadingSpinner size={8} />
-        )
-      ) : (
-        <button
-          onClick={sign}
-          className="px-2 py-1 bg-orange-400 text-slate-50 rounded-md text-xs font-medium"
-        >
-          ASSINAR
-        </button>
-      )}
-    </div>
-  ) : (
-    <></>
   );
 }

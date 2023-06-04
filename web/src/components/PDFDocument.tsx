@@ -147,7 +147,7 @@ export function DocumentLoadingSpinner({message}: {message: string}) {
       >
         <svg
           aria-hidden="true"
-          className="w-16 h-16 mb-2 text-slate-300 animate-spin fill-slate-600"
+          className="w-16 h-16 mb-2 text-slate-300 animate-spin fill-orange-300"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
