@@ -23,10 +23,12 @@ type Signature = {
 type DocumentById = {
   id: string;
   blankDocumentUrl: string;
-  signedDocumnetUrl: string;
+  signedDocumentUrl: string;
+  createdAt: string;
   owner: {
     id: string;
     email: string;
+    name: string;
   };
   signatures: Signature[];
   pendingSignatures: Signature[];

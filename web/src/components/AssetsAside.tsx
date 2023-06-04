@@ -5,6 +5,7 @@ import useSWR from "swr";
 import {fetcher} from "@/services/api";
 import LoadingSpinner from "./LoadingSpinner";
 import {storageProvider} from "@/services/storage";
+import Link from "next/link";
 
 export type SignatureAsset = {
   id: string;
@@ -62,9 +63,8 @@ export function AssetsAside({
               })}
             </div>
             <div className="h-1/5 mt-5">
-              <button
-                onClick={() => {}}
-                type="button"
+              <Link
+                href={"/"}
                 className="text-slate-500 bg-transparent disabled:text-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center"
               >
                 <svg
@@ -82,7 +82,7 @@ export function AssetsAside({
                   />
                 </svg>
                 <p className="text-base">Cancelar</p>
-              </button>
+              </Link>
 
               <button
                 onClick={onSignaturesSubmit}

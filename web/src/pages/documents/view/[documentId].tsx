@@ -8,11 +8,12 @@ import Sidebar from "@/components/Sidebar";
 import {storageProvider} from "@/services/storage";
 import {fetcher} from "@/services/api";
 import StaticSignature from "@/components/StaticSignature";
+import {InfoAside} from "@/components/InfoAside";
 
 export default function SignDocumentPage() {
   const router = useRouter();
   const {data, error, isLoading} = useSWR<DocumentById>(
-    `document/${router.query.documentId}`,
+    `document/view/${router.query.documentId}`,
     fetcher
   );
 
@@ -32,18 +33,23 @@ export default function SignDocumentPage() {
   return (
     <>
       <Sidebar />
-      <div className="p-4 sm:p-16 sm:ml-64 w-4/5 flex justify-center">
+      <div className="p-4 sm:p-16 sm:ml-64">
         <div className="p-4 z-0 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-5">
           {file ? (
             <>
               <PDFDocument fileBuffer={file} />
               {/* ASSINATURAS JÁ ASSINADAS */}
               {data?.signatures &&
-                data.signatures.map((signature) => {
-                  return (
-                    <StaticSignature key={signature.id} signature={signature} />
-                  );
-                })}
+                data.signatures
+                  .filter((signature) => signature.isSigned)
+                  .map((signature) => {
+                    return (
+                      <StaticSignature
+                        key={signature.id}
+                        signature={signature}
+                      />
+                    );
+                  })}
             </>
           ) : (
             <>
@@ -52,6 +58,7 @@ export default function SignDocumentPage() {
           )}
         </div>
       </div>
+      {data?.signatures && <InfoAside documentData={data} />}
     </>
   );
 }

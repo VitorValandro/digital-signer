@@ -2,6 +2,7 @@ import {useState} from "react";
 
 import {useDocumentContext} from "@/contexts/DocumentContext";
 import {AddSigneeInput} from "./AddSigneeInput";
+import Link from "next/link";
 
 type SignaturesAsideProps = {
   isFileSelected: boolean;
@@ -130,9 +131,8 @@ export function SignaturesAside({
                 <></>
               )}
 
-              <button
-                onClick={() => {}}
-                type="button"
+              <Link
+                href={"/"}
                 className="text-slate-500 bg-transparent disabled:text-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center"
               >
                 <svg
@@ -150,7 +150,7 @@ export function SignaturesAside({
                   />
                 </svg>
                 <p className="text-base">Cancelar</p>
-              </button>
+              </Link>
             </div>
           </>
         ) : (
