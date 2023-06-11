@@ -1,6 +1,5 @@
-import { v4 as uuid } from 'uuid';
 import { createHash } from "crypto";
-import { MerkleTree } from './merkle';
+import fs, { readFileSync } from 'fs';
 
 export type BlockData = {
   rootHash: string;
@@ -44,9 +43,8 @@ export class Blockchain {
   public readonly urlAddress = `http://localhost:${process.argv[2]}`;
 
   constructor() {
-    this.chain = [];
+    this.chain = this.loadChain();
     this.pendingTransactions = [];
-    this.createNewBlock(100, '0', '0', [], '0');
     this._networkNodes = [];
   }
 
@@ -61,6 +59,7 @@ export class Blockchain {
     if (!block) return;
     this.pendingTransactions = [];
     this.chain.push(block);
+    this.persistNewBlock(block);
   }
 
   getLastBlock(): Block {
@@ -122,5 +121,26 @@ export class Blockchain {
 
   get networkNodes() {
     return this._networkNodes;
+  }
+
+  private loadChain() {
+    const data = readFileSync('chain.json', 'utf-8');
+    return JSON.parse(data);
+  }
+
+  private persistNewBlock(block: Block) {
+    fs.readFile('chain.json', 'utf8', (err, data) => {
+      if (err) {
+        console.log(err);
+      } else {
+        const chain = JSON.parse(data);
+        chain.push(block);
+        const appendedJson = JSON.stringify(chain);
+        fs.writeFile('chain.json', appendedJson, 'utf8', (err) => {
+          if (err) console.error(err);
+          console.log('New block added to the JSON chain')
+        });
+      }
+    });
   }
 }
