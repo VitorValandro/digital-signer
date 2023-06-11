@@ -25,16 +25,19 @@ export class MerkleTree {
   public readonly leafs: string[];
   public readonly size: number;
 
-  constructor(root: MerkleNode, leafs: string[], size: number) {
+  constructor(root: MerkleNode, leafs: string[], size?: number) {
     this.root = root;
-    this.size = size;
+    this.size = size || Math.ceil(Math.log2(leafs.length)) + 1;
     this.leafs = leafs;
   }
 
-  static create(transactions: SignTransaction[]) {
+  static create(transactions: SignTransaction[] | string[]) {
     if (!transactions.length) throw Error('Transactions array cant be null');
+
+    let leafs: string[];
+    if (transactions[0] instanceof SignTransaction) leafs = transactions.map(t => sha256(JSON.stringify(t)));
+    else leafs = transactions as string[];
     const size = Math.ceil(Math.log2(transactions.length)) + 1;
-    const leafs = transactions.map(t => sha256(JSON.stringify(t)));
     const hashedTransactions = leafs.map(leaf => new MerkleNode(leaf));
     const root = this.makeRoot(hashedTransactions);
 

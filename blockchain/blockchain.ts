@@ -112,6 +112,10 @@ export class Blockchain {
     return true;
   }
 
+  getBlockAtIndex(index: number) {
+    return this.chain[index - 1];
+  }
+
   addNetworkNode(newNodeUrl: string) {
     if (newNodeUrl === this.urlAddress) return;
     const alreadyExists = this._networkNodes.find(nodeUrl => nodeUrl === newNodeUrl);

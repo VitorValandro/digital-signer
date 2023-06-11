@@ -43,6 +43,20 @@ app.get('/blockchain', (req, res) => {
   res.send(blockchain);
 });
 
+app.get('/transaction/verify/:index/:hash', (req, res) => {
+  const { index, hash } = req.params;
+  if (!index || !hash) return res.status(400).json({ error: "Missing block index or file hash" });
+
+  const block = blockchain.getBlockAtIndex(Number(index));
+  if (!block.transactions?.length) return res.status(200).json({ valid: false });
+
+
+  const transaction = blockchain.createNewTransaction(hash);
+  const tree = MerkleTree.create(block.transactions);
+  const isValid = tree.verify(transaction);
+  return res.status(200).json({ valid: isValid });
+});
+
 app.post('/transaction', (req, res) => {
   const { transaction } = req.body;
   if (!transaction) return res.status(403).json({ error: "Missing required transaction object" });
