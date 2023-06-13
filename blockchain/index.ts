@@ -71,7 +71,7 @@ app.post('/transaction/broadcast', (req, res) => {
 
   const newTransaction = blockchain.createNewTransaction(fileHash);
 
-  blockchain.addNewTransaction(newTransaction);
+  const index = blockchain.addNewTransaction(newTransaction);
   const promises = blockchain.networkNodes.map(networkNode => {
     return fetch(`${networkNode}/transaction`, {
       method: "POST",
@@ -85,7 +85,7 @@ app.post('/transaction/broadcast', (req, res) => {
 
   Promise
     .all(promises)
-    .then(_ => res.json({ note: 'Transaction created and broadcast successfully.' }));
+    .then(_ => res.json({ note: 'Transaction created and broadcasted successfully.', fileHash, block: index }));
 })
 
 app.post('/receive-new-block', function (req, res) {

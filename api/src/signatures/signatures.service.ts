@@ -131,14 +131,16 @@ const saveSignedDocument = async (documentId: string | undefined) => {
 
   const { fileName: _, file: signedFile } = await storageProvider.download(signedDocumentUrl);
 
-  await createTransactionOnBlockchain(signedFile);
+  const { fileHash, block } = await createTransactionOnBlockchain(signedFile);
 
   await prisma.document.update({
     where: {
       id: documentId,
     },
     data: {
-      signedDocumentUrl: signedDocumentUrl
+      signedDocumentUrl,
+      block,
+      signedFileHash: fileHash,
     }
   })
 }

@@ -10,6 +10,7 @@ import { parseFormDataWithFiles } from '../helpers/utils';
 
 export const createDocument = async (req: AuthorizedRequest, res: Response) => {
   const DocumentDto = z.object({
+    title: z.string(),
     documentUrl: z.string().url(),
     signatures: z
       .array(
@@ -42,6 +43,7 @@ export const createDocument = async (req: AuthorizedRequest, res: Response) => {
 
   const document = await prisma.document.create({
     data: {
+      title: documentData.title,
       blankDocumentUrl: documentData.documentUrl,
       ownerId: userId
     },
@@ -102,6 +104,7 @@ export const listDocumentsByUser = async (req: AuthorizedRequest, res: Response)
       },
       select: {
         id: true,
+        title: true,
         createdAt: true,
         signatures: {
           select: {
