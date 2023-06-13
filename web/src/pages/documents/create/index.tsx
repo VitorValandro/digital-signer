@@ -22,7 +22,8 @@ export default function CreateDocumentPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [file, setFile] = useState<ArrayBufferLike>();
+  const [uploadFile, setUploadFile] = useState<File>();
+  const [bufferFile, setBufferFile] = useState<ArrayBufferLike>();
   const [allInvalid, setAllInvalid] = useState(false);
   const {positions, signatures, removeSignature, updateSignature, pageNumber} =
     useDocumentContext();
@@ -58,13 +59,13 @@ export default function CreateDocumentPage() {
   };
 
   const submitDocument = () => {
-    if (!file) return;
+    if (!uploadFile) return;
     setIsSubmitted(true);
     setIsUploading(true);
     setIsCreating(true);
     const documentUploadBody = new FormData();
 
-    documentUploadBody.append("document", new Blob([file]));
+    documentUploadBody.append("document", uploadFile);
 
     api
       .post("document/upload", documentUploadBody)
@@ -116,10 +117,13 @@ export default function CreateDocumentPage() {
         <>
           <div className="p-4 sm:p-16 sm:ml-64">
             <div className="p-4 z-0 border-2 border-gray-200 border-dashed rounded-lg">
-              {file ? (
-                <PDFDocument fileBuffer={file} />
+              {bufferFile ? (
+                <PDFDocument fileBuffer={bufferFile} />
               ) : (
-                <DocumentSelect setBufferFile={setFile} />
+                <DocumentSelect
+                  setBufferFile={setBufferFile}
+                  setUploadFile={setUploadFile}
+                />
               )}
             </div>
             {signatures.map((signature, index) => {
@@ -187,7 +191,7 @@ export default function CreateDocumentPage() {
             })}
           </div>
           <SignaturesAside
-            isFileSelected={!!file}
+            isFileSelected={!!bufferFile}
             onDocumentCreate={submitDocument}
           />
         </>

@@ -6,7 +6,9 @@ import fs from 'node:fs';
 import { AuthorizedRequest } from '../users/users.middleware';
 import { prisma } from '../../prisma-client';
 import { storageProvider } from '../providers/storage.provider';
-import { parseFormDataWithFiles } from '../helpers/utils';
+import { parseFormDataWithFiles, sha256 } from '../helpers/utils';
+import { VerifyPDF } from '../sign/VerifyPdf';
+import { verifyDocumentOnBlockchain } from '../blockchain/api';
 
 export const createDocument = async (req: AuthorizedRequest, res: Response) => {
   const DocumentDto = z.object({
@@ -82,6 +84,34 @@ export const uploadDocument = async (req: AuthorizedRequest, res: Response) => {
   );
 
   return res.status(201).json({ fileName, storageUrl });
+};
+
+export const verifyDocument = async (req: AuthorizedRequest, res: Response) => {
+  const body = await parseFormDataWithFiles(req);
+
+  const documentFile = Array.isArray(body.files.document)
+    ? body.files.document[0]
+    : body.files.document;
+
+  if (!documentFile) return res.status(400).json({ message: 'Nenhum arquivo fornecido' });
+
+  const buffer = fs.readFileSync(documentFile.filepath)
+  const fileHash = sha256(buffer);
+
+  try {
+    const foundDocument = await prisma.document.findFirst({ where: { signedFileHash: fileHash } })
+    if (!foundDocument?.block) throw { message: "Documento não encontrado nos registros" }
+
+    const validDocumentAuthentication = VerifyPDF.verify(buffer);
+    const validOnBlockchain = await verifyDocumentOnBlockchain(fileHash, foundDocument.block);
+
+    return res.status(200).json({ valid: validDocumentAuthentication && validOnBlockchain });
+  } catch (error: any) {
+    console.error(error);
+    if (error.message) return res.status(200).json({ valid: false, message: error.message });
+    if (error.error) return res.status(400).json({ valid: false, message: error.error })
+    return res.status(500).json({ message: "Ocorreu um erro ao tentar validar a autenticidade do documento" })
+  }
 };
 
 export const listDocumentsByUser = async (req: AuthorizedRequest, res: Response) => {

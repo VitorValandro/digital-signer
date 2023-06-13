@@ -4,10 +4,14 @@ import {toast} from "react-toastify";
 import LoadingSpinner from "./LoadingSpinner";
 
 type DocumentSelectProps = {
-  setBufferFile: (file: ArrayBuffer) => void;
+  setBufferFile: (file: ArrayBufferLike) => void;
+  setUploadFile: (file: File) => void;
 };
 
-export default function DocumentSelect({setBufferFile}: DocumentSelectProps) {
+export default function DocumentSelect({
+  setBufferFile,
+  setUploadFile,
+}: DocumentSelectProps) {
   const [dragActive, setDragActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -20,6 +24,7 @@ export default function DocumentSelect({setBufferFile}: DocumentSelectProps) {
       toast.warning("Apenas arquivos PDF podem ser usados como documentos");
 
     setIsLoading(true);
+    setUploadFile(file);
 
     file
       .arrayBuffer()

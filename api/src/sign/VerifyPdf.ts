@@ -1,8 +1,8 @@
 import forge from "node-forge";
 import crypto from "crypto";
 
-export class VerifyPdf {
-  getSignature(pdf: Buffer) {
+export class VerifyPDF {
+  private static getSignature(pdf: Buffer) {
     let byteRangePos = pdf.lastIndexOf("/ByteRange[");
     if (byteRangePos === -1) byteRangePos = pdf.lastIndexOf("/ByteRange [");
 
@@ -31,7 +31,7 @@ export class VerifyPdf {
     return { signature, signedData };
   }
 
-  verify(pdf: Buffer) {
+  public static verify(pdf: Buffer) {
     // Extracting the message from the signature
     const extractedData = this.getSignature(pdf);
     const p7Asn1 = forge.asn1.fromDer(extractedData.signature);
