@@ -6,7 +6,7 @@ import fs from 'node:fs';
 
 import { AuthorizedRequest } from '../users/users.middleware';
 import { prisma } from '../../prisma-client';
-import SignPDF from '../sign/signPdf';
+import SignPDF from '../sign/SignPdf';
 import { storageProvider } from '../providers/storage.provider';
 import { getFileExtension, parseFormDataWithFiles } from '../helpers/utils';
 import { drawSignatureOnFile } from '../sign/drawSignatureOnFile';
