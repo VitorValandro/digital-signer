@@ -32,7 +32,9 @@ export default function SignDocumentPage() {
 
   return (
     <>
-      <Sidebar />
+      <Sidebar
+        rightSidebar={data?.signatures && <InfoAside documentData={data} />}
+      />
       <div className="p-4 sm:p-16 sm:ml-64">
         <div className="p-4 z-0 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-5">
           {file ? (
@@ -58,7 +60,6 @@ export default function SignDocumentPage() {
           )}
         </div>
       </div>
-      {data?.signatures && <InfoAside documentData={data} />}
     </>
   );
 }

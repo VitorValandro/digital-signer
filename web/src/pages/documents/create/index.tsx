@@ -119,7 +119,16 @@ export default function CreateDocumentPage() {
 
   return (
     <>
-      <Sidebar />
+      <Sidebar
+        rightSidebar={
+          !isSubmitted && (
+            <SignaturesAside
+              isFileSelected={!!bufferFile}
+              onDocumentCreate={submitDocument}
+            />
+          )
+        }
+      />
       {!isSubmitted ? (
         <>
           <div className="p-4 sm:p-16 sm:ml-64">
@@ -197,10 +206,6 @@ export default function CreateDocumentPage() {
                 );
             })}
           </div>
-          <SignaturesAside
-            isFileSelected={!!bufferFile}
-            onDocumentCreate={submitDocument}
-          />
         </>
       ) : (
         <div className="w-5/6 h-screen p-4 sm:p-16 sm:ml-64 flex flex-col items-center justify-center">

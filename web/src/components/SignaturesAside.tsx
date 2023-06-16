@@ -13,18 +13,11 @@ export function SignaturesAside({
   isFileSelected,
   onDocumentCreate,
 }: SignaturesAsideProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSigneeInputOpen, setIsSigneeInputOpen] = useState(false);
   const {title, setTitle, signatures, removeSignature} = useDocumentContext();
 
   return (
-    <aside
-      id="logo-sidebar"
-      className={`fixed top-0 right-0 z-40 w-1/5 h-screen pt-20 transition-transform ${
-        isSidebarOpen ? "translate-x-0" : "translate-x-full"
-      }  md:translate-x-0 lg:translate-x-0 bg-white border-r border-gray-200`}
-      aria-label="Sidebar"
-    >
+    <>
       <div className="w-full px-5 inline-flex items-center justify-center mb-4">
         <input
           className="mx-8 border-b-2 w-full border-slate-400"
@@ -177,6 +170,6 @@ export function SignaturesAside({
           </>
         )}
       </div>
-    </aside>
+    </>
   );
 }

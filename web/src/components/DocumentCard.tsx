@@ -43,14 +43,18 @@ export default function DocumentCard({
   return (
     <div className="flex flex-col justify-between mb-4 rounded bg-gradient-to-t from-slate-100 to-slate-50 dark:bg-gray-800 border border-gray-200 rounded-lg shadow dark:border-gray-700 p-3">
       <div className="flex flex-col mb-4">
-        <button className="flex items-left text-xl font-medium text-slate-700">
+        <button className="flex items-left text-xl font-medium text-slate-700 w-full">
           {signatures.some(
             (signature) =>
               signature.signee.id == user?.id && !signature.isSigned
           ) ? (
-            <Link href={`/documents/sign/${id}`}>{title}</Link>
+            <Link className="w-full" href={`/documents/sign/${id}`}>
+              {title}
+            </Link>
           ) : (
-            <Link href={`/documents/view/${id}`}>{title}</Link>
+            <Link className="w-full" href={`/documents/view/${id}`}>
+              {title}
+            </Link>
           )}
         </button>
         <h3 className="text-sm text-slate-400 font-medium">

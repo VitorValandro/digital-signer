@@ -78,7 +78,15 @@ export default function SignDocumentPage() {
 
   return (
     <>
-      <Sidebar />
+      <Sidebar
+        rightSidebar={
+          <AssetsAside
+            currentSelectedAsset={currentSelectedAsset}
+            setCurrentSelectedAsset={setCurrentSelectedAsset}
+            onSignaturesSubmit={submitSignatures}
+          />
+        }
+      />
       {!isSubmitted ? (
         <>
           <div className="p-4 sm:p-16 sm:ml-64">
@@ -125,11 +133,6 @@ export default function SignDocumentPage() {
               )}
             </div>
           </div>
-          <AssetsAside
-            currentSelectedAsset={currentSelectedAsset}
-            setCurrentSelectedAsset={setCurrentSelectedAsset}
-            onSignaturesSubmit={submitSignatures}
-          />
         </>
       ) : (
         <div className="w-5/6 h-screen p-4 sm:p-16 sm:ml-64 flex flex-col items-center justify-center">
