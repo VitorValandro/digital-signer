@@ -5,22 +5,6 @@ import {fetcher} from "@/services/api";
 
 import useSWR from "swr";
 
-type DocumentByUser = {
-  id: string;
-  createdAt: string;
-  owner: {
-    name: string;
-  };
-  signatures: {
-    isSigned: boolean;
-    signedAt?: string;
-    signee: {
-      id: string;
-      name: string;
-    };
-  }[];
-}[];
-
 export default function Home() {
   const {data, error, isLoading} = useSWR<DocumentByUser>("document", fetcher);
 

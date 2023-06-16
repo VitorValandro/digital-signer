@@ -1,10 +1,9 @@
-import {getUserId} from "@/services/auth";
 import {ChangeEvent, DragEvent, useRef, useState} from "react";
 import {toast} from "react-toastify";
 import LoadingSpinner from "./LoadingSpinner";
 
 type DocumentSelectProps = {
-  setBufferFile: (file: ArrayBufferLike) => void;
+  setBufferFile?: (file: ArrayBufferLike) => void;
   setUploadFile: (file: File) => void;
 };
 
@@ -25,6 +24,11 @@ export default function DocumentSelect({
 
     setIsLoading(true);
     setUploadFile(file);
+
+    if (!setBufferFile) {
+      setIsLoading(false);
+      return;
+    }
 
     file
       .arrayBuffer()

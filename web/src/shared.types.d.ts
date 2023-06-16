@@ -33,3 +33,44 @@ type DocumentById = {
   signatures: Signature[];
   pendingSignatures: Signature[];
 };
+
+type DocumentByUser = {
+  id: string;
+  createdAt: string;
+  owner: {
+    name: string;
+  };
+  signatures: {
+    isSigned: boolean;
+    signedAt?: string;
+    signee: {
+      id: string;
+      name: string;
+    };
+  }[];
+}[];
+
+type DocumentVerificationResponse = {
+  valid: boolean;
+  message: string;
+  document?: {
+    id: string;
+    title: string;
+    blankDocumentUrl: string;
+    signedDocumentUrl: string | null;
+    block: number | null;
+    createdAt: Date;
+    owner: {
+      name: string;
+      email: true;
+    };
+    signatures: {
+      isSigned: boolean;
+      signedAt?: string;
+      signee: {
+        name: string;
+        email: true;
+      };
+    }[]
+  }
+};

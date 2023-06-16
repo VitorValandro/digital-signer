@@ -99,13 +99,40 @@ export const verifyDocument = async (req: AuthorizedRequest, res: Response) => {
   const fileHash = sha256(buffer);
 
   try {
-    const foundDocument = await prisma.document.findFirst({ where: { signedFileHash: fileHash } })
+    const foundDocument = await prisma.document.findFirst({
+      where: { signedFileHash: fileHash },
+      select: {
+        title: true,
+        createdAt: true,
+        block: true,
+        blankDocumentUrl: true,
+        signedDocumentUrl: true,
+        signatures: {
+          select: {
+            isSigned: true,
+            signedAt: true,
+            signee: {
+              select: {
+                name: true,
+                email: true
+              }
+            }
+          },
+        },
+        owner: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      }
+    })
     if (!foundDocument?.block) throw { message: "Documento não encontrado nos registros" }
 
     const validDocumentAuthentication = VerifyPDF.verify(buffer);
     const validOnBlockchain = await verifyDocumentOnBlockchain(fileHash, foundDocument.block);
 
-    return res.status(200).json({ valid: validDocumentAuthentication && validOnBlockchain });
+    return res.status(200).json({ valid: validDocumentAuthentication && validOnBlockchain, document: foundDocument });
   } catch (error: any) {
     console.error(error);
     if (error.message) return res.status(200).json({ valid: false, message: error.message });

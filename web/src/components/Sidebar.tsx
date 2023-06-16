@@ -125,6 +125,14 @@ export default function Sidebar() {
                 <span className="ml-3">Assinaturas</span>
               </Link>
             </li>
+            <li>
+              <Link
+                href="/documents/verify"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <span className="ml-3">Autenticar um documento</span>
+              </Link>
+            </li>
           </ul>
         </div>
       </aside>
