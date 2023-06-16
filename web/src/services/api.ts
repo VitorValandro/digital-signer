@@ -11,16 +11,7 @@ api.interceptors.response.use(response => response, error => {
   if (error.response.status === 401) {
     Router.push('/auth');
 
-    toast.warning('Autenticação expirada. Conecte-se novamente.', {
-      position: "bottom-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "colored",
-    });
+    toast.warning('Autenticação expirada. Conecte-se novamente.');
     return;
   }
   return Promise.reject(error);

@@ -1,3 +1,9 @@
+type User = {
+  id: string;
+  name: string;
+  email: string;
+}
+
 type SignatureAsset = {
   id: string;
   signatureUrl: string;

@@ -1,11 +1,15 @@
-import api from "@/services/api";
-import {login} from "@/services/auth";
 import {useRouter} from "next/router";
-import {ToastContainer, toast} from "react-toastify";
+import {toast} from "react-toastify";
 import {z} from "zod";
 
+import api from "@/services/api";
+import {login} from "@/services/auth";
+import {useUserContext} from "@/contexts/UserContext";
+
 export default function LoginForm({toggleForm}: {toggleForm: () => void}) {
+  const {setUser} = useUserContext();
   const router = useRouter();
+
   const formSchema = z.object({
     email: z
       .string()
@@ -32,16 +36,7 @@ export default function LoginForm({toggleForm}: {toggleForm: () => void}) {
         const firstError: any = Object.values(err.format()).pop();
         message = firstError?._errors.pop() || message;
       }
-      toast.error(message, {
-        position: "bottom-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      toast.error(message);
 
       return;
     }
@@ -49,17 +44,9 @@ export default function LoginForm({toggleForm}: {toggleForm: () => void}) {
     api
       .post("/user/login", data)
       .then((response) => {
-        toast.success(`Bem vindo (a), ${response.data.user.name}`, {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        toast.success(`Bem vindo (a), ${response.data.user.name}`);
         login(response.data.token, data.email, response.data.user.id);
+        setUser({...response.data.user});
         router.push("/");
       })
       .catch((err) => {
@@ -67,16 +54,7 @@ export default function LoginForm({toggleForm}: {toggleForm: () => void}) {
           err.response?.data?.message ||
           "Ocorreu um erro ao acessar o servidor";
 
-        toast.warning(message, {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        toast.warning(message);
       });
   };
 

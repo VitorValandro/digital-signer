@@ -2,15 +2,17 @@ import {ChangeEvent, DragEvent, useRef, useState} from "react";
 import {toast} from "react-toastify";
 
 import api from "@/services/api";
-import {getUserId} from "@/services/auth";
 import LoadingSpinner from "./LoadingSpinner";
+import {useUserContext} from "@/contexts/UserContext";
 
 export function AddSignatureCard() {
   const [dragActive, setDragActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const {user} = useUserContext();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSubmit = (files: FileList) => {
+    if (!user) return;
     if (!files?.length) return;
     const file = files[0];
     if (!file.type.startsWith("image"))
@@ -18,13 +20,10 @@ export function AddSignatureCard() {
         "Apenas arquivos de imagem podem ser adicionados como assinaturas"
       );
 
-    const userId = getUserId();
-    if (!userId) return;
-
     setIsLoading(true);
     const body = new FormData();
 
-    body.append("userId", userId);
+    body.append("userId", user.id);
     body.append("signature", file);
 
     api

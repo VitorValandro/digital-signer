@@ -6,6 +6,7 @@ import {useEffect} from "react";
 import {pdfjs} from "react-pdf";
 import {ToastContainer} from "react-toastify";
 import Head from "next/head";
+import UserContextProvider from "@/contexts/UserContext";
 
 export default function App({Component, pageProps}: AppProps) {
   useEffect(() => {
@@ -16,19 +17,21 @@ export default function App({Component, pageProps}: AppProps) {
   }, []);
   return (
     <DocumentContextProvider>
-      <Head>
-        <title>Insígnia</title>
-      </Head>
-      <Component {...pageProps} />
-      <ToastContainer
-        position={"bottom-right"}
-        autoClose={5000}
-        hideProgressBar={false}
-        closeOnClick={true}
-        pauseOnHover={true}
-        draggable={true}
-        theme={"colored"}
-      />
+      <UserContextProvider>
+        <Head>
+          <title>Insígnia</title>
+        </Head>
+        <Component {...pageProps} />
+        <ToastContainer
+          position={"bottom-right"}
+          autoClose={5000}
+          hideProgressBar={false}
+          closeOnClick={true}
+          pauseOnHover={true}
+          draggable={true}
+          theme={"colored"}
+        />
+      </UserContextProvider>
     </DocumentContextProvider>
   );
 }
