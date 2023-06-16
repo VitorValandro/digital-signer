@@ -16,7 +16,7 @@ import PendingSignature from "@/components/PendingSignature";
 
 export default function SignDocumentPage() {
   const router = useRouter();
-  const {data, error, isLoading} = useSWR<DocumentById>(
+  const {data} = useSWR<DocumentById>(
     `document/${router.query.documentId}`,
     fetcher
   );

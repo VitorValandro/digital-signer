@@ -12,7 +12,7 @@ import {InfoAside} from "@/components/InfoAside";
 
 export default function SignDocumentPage() {
   const router = useRouter();
-  const {data, error, isLoading} = useSWR<DocumentById>(
+  const {data} = useSWR<DocumentById>(
     `document/view/${router.query.documentId}`,
     fetcher
   );

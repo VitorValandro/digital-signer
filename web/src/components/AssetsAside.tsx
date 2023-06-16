@@ -18,10 +18,7 @@ export function AssetsAside({
   setCurrentSelectedAsset,
   onSignaturesSubmit,
 }: AssetsAsideProps) {
-  const {data, error, isLoading} = useSWR<SignatureAsset[]>(
-    `signatures/assets`,
-    fetcher
-  );
+  const {data} = useSWR<SignatureAsset[]>(`signatures/assets`, fetcher);
 
   useEffect(() => {
     const firstSignature = data?.at(0);

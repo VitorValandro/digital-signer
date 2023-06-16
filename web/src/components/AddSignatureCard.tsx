@@ -1,11 +1,18 @@
 import {ChangeEvent, DragEvent, useRef, useState} from "react";
 import {toast} from "react-toastify";
+import {KeyedMutator} from "swr";
 
 import api from "@/services/api";
 import LoadingSpinner from "./LoadingSpinner";
 import {useUserContext} from "@/contexts/UserContext";
 
-export function AddSignatureCard() {
+type AddSignatureCardProps = {
+  revalidationFunction: KeyedMutator<SignatureAsset[]>;
+};
+
+export function AddSignatureCard({
+  revalidationFunction,
+}: AddSignatureCardProps) {
   const [dragActive, setDragActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const {user} = useUserContext();
@@ -29,6 +36,7 @@ export function AddSignatureCard() {
     api
       .post("signatures/assets/upload", body)
       .then((response) => {
+        revalidationFunction();
         toast.success("Assinatura adicionada!");
 
         setIsLoading(false);

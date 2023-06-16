@@ -1,20 +1,24 @@
 import Image from "next/image";
-import {storageProvider} from "../services/storage";
-import {useEffect, useState} from "react";
-import {ConfirmationModal} from "./ConfirmationModal";
-import api from "@/services/api";
 import {toast} from "react-toastify";
+import {KeyedMutator} from "swr";
+import {useEffect, useState} from "react";
+
+import {ConfirmationModal} from "./ConfirmationModal";
+import {storageProvider} from "@/services/storage";
+import api from "@/services/api";
 
 type SignatureCardProps = {
   id: string;
   createdAt: string;
   signatureUrl: string;
+  revalidationFunction: KeyedMutator<SignatureAsset[]>;
 };
 
 export function SignatureCard({
   id,
   createdAt,
   signatureUrl,
+  revalidationFunction,
 }: SignatureCardProps) {
   const [imageUrl, setImageUrl] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -39,13 +43,14 @@ export function SignatureCard({
     api
       .delete("signatures/assets/delete", {data: body})
       .then((response) => {
-        toast.success("Assinatura removida com sucesso");
-
         setIsDeleting(false);
+        revalidationFunction();
+        toast.success("Assinatura removida com sucesso");
       })
       .catch((err) => {
         const message =
-          err.response.data?.message || "Ocorreu um erro ao acessar o servidor";
+          err?.response?.data?.message ||
+          "Ocorreu um erro ao acessar o servidor";
 
         toast.warning(message);
 

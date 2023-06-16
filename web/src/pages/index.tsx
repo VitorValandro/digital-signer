@@ -11,7 +11,7 @@ import {toast} from "react-toastify";
 import {useRouter} from "next/router";
 
 export default function Home() {
-  const {data, error, isLoading} = useSWR<DocumentByUser>("document", fetcher);
+  const {data} = useSWR<DocumentByUser>("document", fetcher);
   const router = useRouter();
   const {user, setUser} = useUserContext();
 
