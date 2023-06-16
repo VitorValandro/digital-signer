@@ -16,6 +16,16 @@ module.exports = {
       data: {
         invalid: 'ui~="invalid"',
       },
+      colors: {
+        orange: {
+          100: "#ffda3f",
+          200: "#ffcd30",
+          300: "#ffc01e",
+          400: "#ffb400",
+          500: "#ffa500",
+          600: "#fd8421",
+        },
+      },
     },
   },
   plugins: [

@@ -5,6 +5,7 @@ import type {AppProps} from "next/app";
 import {useEffect} from "react";
 import {pdfjs} from "react-pdf";
 import {ToastContainer} from "react-toastify";
+import Head from "next/head";
 
 export default function App({Component, pageProps}: AppProps) {
   useEffect(() => {
@@ -15,6 +16,9 @@ export default function App({Component, pageProps}: AppProps) {
   }, []);
   return (
     <DocumentContextProvider>
+      <Head>
+        <title>Insígnia</title>
+      </Head>
       <Component {...pageProps} />
       <ToastContainer
         position={"bottom-right"}

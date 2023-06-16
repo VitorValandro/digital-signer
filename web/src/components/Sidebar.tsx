@@ -1,5 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import {useState} from "react";
+
+import logo from "../../public/insignia-logo.svg";
 
 export default function Sidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -35,9 +38,12 @@ export default function Sidebar() {
                   ></path>
                 </svg>
               </button>
-              <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
-                Signer
-              </span>
+              <div className="inline-flex">
+                <Image width={35} height={35} src={logo} alt="Logo" />
+                <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-orange-500">
+                  Insígnia
+                </span>
+              </div>
             </div>
             <div className="flex items-center">
               <div className="flex items-center ml-3">

@@ -7,14 +7,6 @@ import LoadingSpinner from "./LoadingSpinner";
 import {storageProvider} from "@/services/storage";
 import Link from "next/link";
 
-export type SignatureAsset = {
-  id: string;
-  signatureUrl: string;
-  createdAt?: string;
-  updatedAt?: string;
-  signeeId?: string;
-};
-
 type AssetsAsideProps = {
   currentSelectedAsset: SignatureAsset | undefined;
   setCurrentSelectedAsset: (current: SignatureAsset) => void;

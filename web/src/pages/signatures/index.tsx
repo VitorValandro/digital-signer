@@ -2,7 +2,6 @@ import useSWR from "swr";
 import Sidebar from "../../components/Sidebar";
 import {SignatureCard} from "../../components/SignatureCard";
 import {fetcher} from "@/services/api";
-import {SignatureAsset} from "@/services/types";
 import {AddSignatureCard} from "@/components/AddSignatureCard";
 
 export default function Home() {

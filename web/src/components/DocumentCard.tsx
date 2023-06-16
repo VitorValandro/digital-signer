@@ -70,7 +70,7 @@ export default function DocumentCard({
         <div>
           <div className="w-full bg-slate-200 rounded-full h-2.5">
             <div
-              className="w-0 transition-width duration-1000 ease-in-out bg-gradient-to-r from-orange-300 to-orange-400 h-2.5 rounded-full"
+              className="w-0 transition-width duration-1000 ease-in-out bg-gradient-to-r from-orange-300 to-orange-500 h-2.5 rounded-full"
               style={{width: `${width}%`}}
             ></div>
           </div>
