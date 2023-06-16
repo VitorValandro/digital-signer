@@ -80,11 +80,13 @@ export default function SignDocumentPage() {
     <>
       <Sidebar
         rightSidebar={
-          <AssetsAside
-            currentSelectedAsset={currentSelectedAsset}
-            setCurrentSelectedAsset={setCurrentSelectedAsset}
-            onSignaturesSubmit={submitSignatures}
-          />
+          !isSubmitted && (
+            <AssetsAside
+              currentSelectedAsset={currentSelectedAsset}
+              setCurrentSelectedAsset={setCurrentSelectedAsset}
+              onSignaturesSubmit={submitSignatures}
+            />
+          )
         }
       />
       {!isSubmitted ? (

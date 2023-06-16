@@ -18,15 +18,15 @@ export const drawSignatureOnFile = async (documentFile: Buffer, signatures: Arra
     )
       throw 'Informações insuficientes para assinar o documento';
 
-    const { fileName, file } = await storageProvider.download(signature.signatureAsset.signatureUrl);
+    const { file } = await storageProvider.download(signature.signatureAsset.signatureUrl);
     const assetImage = await document.embedPng(file);
 
     const pages = document.getPages()
     const signaturePage = pages[signature.pageIndex];
 
     signaturePage?.drawImage(assetImage, {
-      x: signature.x,
-      y: signaturePage.getHeight() - signature.y - signature.height,
+      x: signature.x - signature.width,
+      y: signaturePage.getHeight() - signature.y,
       width: signature.width,
       height: signature.height
     })

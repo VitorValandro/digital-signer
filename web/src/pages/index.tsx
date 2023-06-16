@@ -20,18 +20,18 @@ export default function Home() {
     const email = getUserThatIsAuthenticated();
 
     fetcher(`/user/${email}`)
-        .then((response) => {
-          setUser({
-            ...response,
-          });
-        })
-        .catch((err) => {
-          router.push("/auth");
-
-          toast.warning(
-            "Ocorreu um problema ao recuperar sua sessão. Conecte-se novamente."
-          );
+      .then((response) => {
+        setUser({
+          ...response,
         });
+      })
+      .catch((err) => {
+        router.push("/auth");
+
+        toast.warning(
+          "Ocorreu um problema ao recuperar sua sessão. Conecte-se novamente."
+        );
+      });
   }, [user, setUser, router]);
 
   return (
@@ -65,7 +65,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="min-h-screen p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-5">
-          {data &&
+          {data?.length ? (
             data.map((document) => {
               return (
                 <DocumentCard
@@ -79,7 +79,13 @@ export default function Home() {
                   }}
                 />
               );
-            })}
+            })
+          ) : (
+            <p className="text-center font-medium text-slate-500">
+              Você ainda não criou nenhum documento e também ainda não foi
+              convidado a assinar nenhum arquivo. Crie seu primeiro documento!
+            </p>
+          )}
         </div>
       </div>
     </>

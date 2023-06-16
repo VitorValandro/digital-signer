@@ -131,7 +131,17 @@ const saveSignedDocument = async (documentId: string | undefined) => {
 
   const { fileName: _, file: signedFile } = await storageProvider.download(signedDocumentUrl);
 
-  const { fileHash, block } = await createTransactionOnBlockchain(signedFile);
+  const { fileHash, block } = await createTransactionOnBlockchain(signedFile).catch(async err => {
+    await prisma.document.update({
+      where: {
+        id: documentId,
+      },
+      data: {
+        signedDocumentUrl,
+      }
+    })
+    throw err;
+  });
 
   await prisma.document.update({
     where: {
@@ -200,10 +210,12 @@ export const deleteSignatureAsset = async (req: AuthorizedRequest, res: Response
 
   const asset = await prisma.signatureAsset.findUnique({
     where: { id: req.body.id },
-    select: { id: true, signatureUrl: true },
+    select: { id: true, signatureUrl: true, signatures: true },
   });
 
   if (!asset) return res.status(404).json({ message: 'Não foi possível deletar a assinatura. Assinatura não encontrada.' });
+
+  if (asset.signatures.length) return res.status(400).json({ message: `Essa assinatura foi usada ${asset.signatures.length} vez${asset.signatures.length > 1 ? 'es' : ''}. Não é possível deletar uma assinatura que já tenha sido usada em algum documento.` })
 
   try {
     await storageProvider.delete(asset.signatureUrl);

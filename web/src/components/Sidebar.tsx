@@ -197,7 +197,7 @@ export default function Sidebar({rightSidebar}: SidebarProps) {
       </aside>
       {rightSidebar && (
         <aside
-          className={`overflow-y-auto fixed top-0 right-0 z-40 w-full sm:w-96 h-screen pt-20 transition-transform ${
+          className={`overflow-y-auto fixed top-0 right-0 z-40 w-full sm:w-72 h-screen pt-20 transition-transform ${
             isRightSidebarOpen ? "translate-x-0" : "translate-x-full"
           }  md:translate-x-0 lg:translate-x-0 bg-white border-r border-gray-200`}
           aria-label="Sidebar"

@@ -15,7 +15,7 @@ export default function Home() {
       <Sidebar />
       <div className="p-4 sm:p-16 sm:ml-64">
         <div className="p-4 flex items-center mt-5">
-          <h1 className="text-4xl font-light text-slate-800">
+          <h1 className="text-4xl font-medium text-slate-700">
             Suas assinaturas
           </h1>
         </div>
