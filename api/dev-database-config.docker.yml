@@ -1,0 +1,21 @@
+version: "3.1"
+
+services:
+  insignia-dev-database:
+    container_name: insignia-dev-database
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "insignia"
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_USER: "postgres"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      default:
+        aliases:
+          - postgres.service
