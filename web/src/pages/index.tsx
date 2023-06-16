@@ -4,9 +4,35 @@ import Link from "next/link";
 import {fetcher} from "@/services/api";
 
 import useSWR from "swr";
+import {useUserContext} from "@/contexts/UserContext";
+import {useEffect} from "react";
+import {getUserThatIsAuthenticated} from "@/services/auth";
+import {toast} from "react-toastify";
+import {useRouter} from "next/router";
 
 export default function Home() {
   const {data, error, isLoading} = useSWR<DocumentByUser>("document", fetcher);
+  const router = useRouter();
+  const {user, setUser} = useUserContext();
+
+  useEffect(() => {
+    if (user?.id) return;
+    const email = getUserThatIsAuthenticated();
+
+    fetcher(`/user/${email}`)
+        .then((response) => {
+          setUser({
+            ...response,
+          });
+        })
+        .catch((err) => {
+          router.push("/auth");
+
+          toast.warning(
+            "Ocorreu um problema ao recuperar sua sessão. Conecte-se novamente."
+          );
+        });
+  }, [user, setUser, router]);
 
   return (
     <>

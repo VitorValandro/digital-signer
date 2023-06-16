@@ -4,11 +4,7 @@ import { authMiddleware } from './users.middleware';
 
 const router = Router();
 
-router.get('/', authMiddleware, (req, res) => {
-  res.send('Hello world');
-})
-
-router.get('/:email', findUserByEmail)
+router.get('/:email', authMiddleware, findUserByEmail)
 
 router.post('/', createUser);
 

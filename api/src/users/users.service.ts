@@ -21,7 +21,7 @@ export const findUserByEmail = async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(400).json({ message: "Nenhum usuário cadastrado com esse email" })
 
-  return res.status(200).json(user);
+  return res.status(200).json({ ...user, password: undefined });
 }
 
 export const createUser = async (req: Request, res: Response) => {
