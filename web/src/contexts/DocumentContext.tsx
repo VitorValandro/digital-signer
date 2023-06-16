@@ -1,39 +1,35 @@
 import React, {ReactNode, createContext, useContext, useState} from "react";
 
-type Signature = {
-  signeeId: string;
-  email?: string;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  pageIndex: number;
-};
-
 type DocumentContextProps = {
   positions: DOMRect | undefined;
   setPositions: (rect: DOMRect | undefined) => void;
-  signatures: Array<Signature>;
-  addSignature: (signature: Signature) => void;
+  signatures: Array<ContextSignature>;
+  addSignature: (signature: ContextSignature) => void;
   removeSignature: (index: number) => void;
   updateSignature: (
     index: number,
-    updatedSignature: Partial<Signature>
+    updatedSignature: Partial<ContextSignature>
   ) => void;
   pageNumber: number;
   setPageNumber: (page: number | ((prevPage: number) => number)) => void;
+  title: string | undefined;
+  setTitle: (title: string) => void;
 };
 
 const DocumentContext = createContext<DocumentContextProps>({
   positions: undefined,
   setPositions: () => {},
   signatures: [],
-  addSignature: (signature: Signature) => null,
+  addSignature: (signature: ContextSignature) => null,
   removeSignature: (index: number) => null,
-  updateSignature: (index: number, updatedSignature: Partial<Signature>) =>
-    null,
+  updateSignature: (
+    index: number,
+    updatedSignature: Partial<ContextSignature>
+  ) => null,
   pageNumber: 1,
   setPageNumber: (page: number | ((prevPage: number) => number)) => null,
+  title: undefined,
+  setTitle: (title: string) => null,
 });
 
 export const useDocumentContext = () => useContext(DocumentContext);
@@ -45,15 +41,16 @@ export default function DocumentContextProvider({
 }) {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [positions, setPositions] = useState<DOMRect | undefined>(undefined);
-  const [signatures, setSignatures] = useState<Array<Signature>>([]);
+  const [signatures, setSignatures] = useState<Array<ContextSignature>>([]);
+  const [title, setTitle] = useState<string>();
 
-  const addSignature = (newSignature: Signature) => {
+  const addSignature = (newSignature: ContextSignature) => {
     setSignatures([...signatures, newSignature]);
   };
 
   const updateSignature = (
     index: number,
-    updatedSignature: Partial<Signature>
+    updatedSignature: Partial<ContextSignature>
   ) => {
     const newSignaturesArray = signatures.map((signature, i) => {
       if (i === index) return {...signature, ...updatedSignature};
@@ -79,6 +76,8 @@ export default function DocumentContextProvider({
           updateSignature,
           pageNumber,
           setPageNumber,
+          title,
+          setTitle,
         }}
       >
         {children}

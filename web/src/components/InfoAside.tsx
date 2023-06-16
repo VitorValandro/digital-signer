@@ -37,6 +37,9 @@ export function InfoAside({documentData}: InfoAsideProps) {
       <div className="h-full px-3 pb-4 bg-white dark:bg-gray-800">
         <div className="h-3/5 lg:h-4/5 overflow-y-auto">
           <div className="px-4">
+            <p className="text-xl font-medium text-orange-500">
+              {documentData.title}
+            </p>
             <p className="text-sm">
               Documento criado por {documentData.owner.name} em{" "}
               {new Date(documentData.createdAt).toLocaleDateString("pt-br")}

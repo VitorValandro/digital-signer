@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 
 interface DocumentCardProps {
   id: string;
+  title: string;
   createdAt: string;
   ownerName: string;
   signatures: {
@@ -18,6 +19,7 @@ interface DocumentCardProps {
 
 export default function DocumentCard({
   id,
+  title,
   createdAt,
   ownerName,
   signatures,
@@ -49,13 +51,13 @@ export default function DocumentCard({
   return (
     <div className="flex flex-col justify-between mb-4 rounded bg-gradient-to-t from-slate-100 to-slate-50 dark:bg-gray-800 border border-gray-200 rounded-lg shadow dark:border-gray-700 p-3">
       <div className="flex flex-col mb-4">
-        <button className="flex items-left text-xl font-medium text-slate-800">
+        <button className="flex items-left text-xl font-medium text-slate-700">
           {signatures.some(
             (signature) => signature.signee.id == userId && !signature.isSigned
           ) ? (
-            <Link href={`/documents/sign/${id}`}>Título do documento</Link>
+            <Link href={`/documents/sign/${id}`}>{title}</Link>
           ) : (
-            <Link href={`/documents/view/${id}`}>Título do documento</Link>
+            <Link href={`/documents/view/${id}`}>{title}</Link>
           )}
         </button>
         <h3 className="text-sm text-slate-400 font-medium">
@@ -66,9 +68,9 @@ export default function DocumentCard({
 
       <div>
         <div>
-          <div className="w-full bg-slate-200 rounded-full h-2.5 dark:bg-slate-700">
+          <div className="w-full bg-slate-200 rounded-full h-2.5">
             <div
-              className="w-0 transition-width duration-1000 ease-in-out bg-orange-400 h-2.5 rounded-full"
+              className="w-0 transition-width duration-1000 ease-in-out bg-gradient-to-r from-orange-300 to-orange-400 h-2.5 rounded-full"
               style={{width: `${width}%`}}
             ></div>
           </div>

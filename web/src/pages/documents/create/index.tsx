@@ -25,8 +25,14 @@ export default function CreateDocumentPage() {
   const [uploadFile, setUploadFile] = useState<File>();
   const [bufferFile, setBufferFile] = useState<ArrayBufferLike>();
   const [allInvalid, setAllInvalid] = useState(false);
-  const {positions, signatures, removeSignature, updateSignature, pageNumber} =
-    useDocumentContext();
+  const {
+    title,
+    positions,
+    signatures,
+    removeSignature,
+    updateSignature,
+    pageNumber,
+  } = useDocumentContext();
   const signaturesRefs = useRef<Array<Rnd>>([]);
   const router = useRouter();
 
@@ -78,6 +84,7 @@ export default function CreateDocumentPage() {
         setIsUploading(false);
 
         const data = {
+          title: title,
           documentUrl: uploadResponse.storageUrl,
           signatures: signatures.map((signature) => {
             delete signature.email;

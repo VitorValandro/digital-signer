@@ -3,6 +3,16 @@ type SignatureAsset = {
   signatureUrl: string;
 };
 
+type ContextSignature = {
+  signeeId: string;
+  email?: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  pageIndex: number;
+};
+
 type Signature = {
   id: string;
   isSigned: boolean;
@@ -22,6 +32,7 @@ type Signature = {
 
 type DocumentById = {
   id: string;
+  title: string;
   blankDocumentUrl: string;
   signedDocumentUrl: string;
   createdAt: string;
@@ -37,6 +48,7 @@ type DocumentById = {
 type DocumentByUser = {
   id: string;
   createdAt: string;
+  title: string;
   owner: {
     name: string;
   };
