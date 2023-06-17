@@ -71,11 +71,8 @@ export class Blockchain {
   }
 
   addNewTransaction(transaction: SignTransaction): number {
-    console.log('TRANSACAO: ', transaction);
     this.pendingTransactions.push(transaction);
-    console.log('TRANSACOES: ', this.pendingTransactions);
-    console.log('INDEX: ', (Number(this.getLastBlock().index) || this.chain.length + 1) + 1)
-    return (Number(this.getLastBlock().index) || this.chain.length + 1) + 1;
+    return (Number(this.getLastBlock().index) || this.chain.length) + 1;
   }
 
   hashBlock(previousBlockHash: string, currentBlockData: BlockData, nonce: number) {

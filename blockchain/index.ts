@@ -4,6 +4,7 @@ import cron from 'node-cron';
 
 import { Blockchain } from "./blockchain";
 import { MerkleTree } from "./merkle";
+import { readFileSync } from "fs";
 
 const PORT = process.env.PORT;
 const blockchain = new Blockchain();
@@ -43,6 +44,11 @@ app.get('/blockchain', (req, res) => {
   res.send(blockchain);
 });
 
+app.get('/chain', (req, res) => {
+  const data = readFileSync('chain.json', 'utf-8');
+  res.status(200).json(JSON.parse(data));
+})
+
 app.get('/transaction/verify/:index/:hash', (req, res) => {
   const { index, hash } = req.params;
   if (!index || !hash) return res.status(400).json({ error: "Missing block index or file hash" });
@@ -72,7 +78,7 @@ app.post('/transaction/broadcast', (req, res) => {
   const newTransaction = blockchain.createNewTransaction(fileHash);
 
   const index = blockchain.addNewTransaction(newTransaction);
-  console.log('index: ', index);
+
   const promises = blockchain.networkNodes.map(networkNode => {
     return fetch(`${networkNode}/transaction`, {
       method: "POST",
