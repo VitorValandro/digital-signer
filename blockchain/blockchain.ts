@@ -40,7 +40,7 @@ export class Blockchain {
   public pendingTransactions: Array<SignTransaction>;
   private hashAlgorithm = 'sha256';
   private readonly _networkNodes: Array<string>;
-  public readonly urlAddress = `http://localhost:${process.argv[2]}`;
+  public readonly urlAddress = process.env.RAILWAY_STATIC_URL;
 
   constructor() {
     this.chain = this.loadChain();
@@ -128,8 +128,28 @@ export class Blockchain {
   }
 
   private loadChain() {
-    const data = readFileSync('chain.json', 'utf-8');
-    return JSON.parse(data);
+    try {
+      const data = readFileSync('chain.json', 'utf-8');
+      return JSON.parse(data);
+    } catch (err: any) {
+      if (err.code !== 'ENOENT') throw err;
+      const GENESIS_CHAIN = [
+        {
+          "index": 1,
+          "timestamp": 0,
+          "transactions": [],
+          "rootHash": "0",
+          "nonce": 100,
+          "hash": "0",
+          "previousBlockHash": "0"
+        }
+      ];
+
+      const json = JSON.stringify(GENESIS_CHAIN);
+      fs.writeFile('chain.json', json, 'utf8', (err) => {
+        if (err) console.error('Error when creating chain.json file: ', err);
+      });
+    }
   }
 
   private persistNewBlock(block: Block) {
@@ -142,7 +162,6 @@ export class Blockchain {
         const appendedJson = JSON.stringify(chain);
         fs.writeFile('chain.json', appendedJson, 'utf8', (err) => {
           if (err) console.error(err);
-          console.log('New block added to the JSON chain')
         });
       }
     });

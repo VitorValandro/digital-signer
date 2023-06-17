@@ -5,7 +5,7 @@ import cron from 'node-cron';
 import { Blockchain } from "./blockchain";
 import { MerkleTree } from "./merkle";
 
-const PORT = process.argv[2];
+const PORT = process.env.PORT;
 const blockchain = new Blockchain();
 
 const app = express();
@@ -180,4 +180,4 @@ app.get('/network-acknowledge', (req, res) => {
   })
 })
 
-app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));
+app.listen(PORT, () => console.log(`Listening on ${process.env.RAILWAY_STATIC_URL} on port ${PORT}...`));
