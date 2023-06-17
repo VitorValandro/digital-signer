@@ -4,7 +4,7 @@ import { getToken } from './auth';
 import { toast } from 'react-toastify';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/',
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 api.interceptors.response.use(response => response, error => {

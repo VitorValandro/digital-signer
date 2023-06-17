@@ -1,4 +1,4 @@
-import { Storage, File } from 'megajs';
+import { File } from 'megajs';
 
 interface StorageProvider {
   download: (fileUrl: string) => Promise<{ fileName: string, file: Buffer }>;
