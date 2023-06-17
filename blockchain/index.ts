@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import bodyParser from "body-parser";
 import express from "express";
 import cron from 'node-cron';
@@ -5,6 +6,8 @@ import cron from 'node-cron';
 import { Blockchain } from "./blockchain";
 import { MerkleTree } from "./merkle";
 import { readFileSync } from "fs";
+
+dotenv.config();
 
 const PORT = process.env.PORT;
 const blockchain = new Blockchain();
