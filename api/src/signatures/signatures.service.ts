@@ -143,6 +143,8 @@ const saveSignedDocument = async (documentId: string | undefined) => {
     throw err;
   });
 
+  console.log('Hash: ', fileHash, 'block: ', block);
+
   await prisma.document.update({
     where: {
       id: documentId,

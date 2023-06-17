@@ -70,8 +70,10 @@ app.post('/transaction/broadcast', (req, res) => {
   if (!fileHash) return res.status(403).json({ error: "Missing required information" });
 
   const newTransaction = blockchain.createNewTransaction(fileHash);
+  console.log('Transaction: ', newTransaction);
 
   const index = blockchain.addNewTransaction(newTransaction);
+  console.log('index: ', index);
   const promises = blockchain.networkNodes.map(networkNode => {
     return fetch(`${networkNode}/transaction`, {
       method: "POST",
