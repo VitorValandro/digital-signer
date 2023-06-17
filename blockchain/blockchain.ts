@@ -149,6 +149,7 @@ export class Blockchain {
       fs.writeFile('chain.json', json, 'utf8', (err) => {
         if (err) console.error('Error when creating chain.json file: ', err);
       });
+      return json;
     }
   }
 
