@@ -113,8 +113,8 @@ export default function DocumentSelect({
             </svg>
 
             <p className="font-medium mt-5">
-              Arraste o arquivo PDF do documento ou clique aqui para
-              selecioná-lo
+              Arraste o arquivo PDF do documento em proporção A4 ou clique aqui
+              para selecioná-lo
             </p>
           </button>
 

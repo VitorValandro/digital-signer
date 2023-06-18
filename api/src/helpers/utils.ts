@@ -1,6 +1,7 @@
 import formidable from "formidable";
 import { AuthorizedRequest } from "../users/users.middleware";
 import { BinaryLike, createHash } from "crypto";
+import { Signature } from "@prisma/client";
 
 export const parseFormDataWithFiles = (req: AuthorizedRequest) =>
   new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
@@ -19,3 +20,18 @@ export const sha256 = (data: BinaryLike) => {
     .digest()
     .toString('hex');
 };
+
+export const mapValuesToPdfProportion = (positions: { x: number | null, y: number | null, width: number | null, height: number | null }) => {
+  if (!positions.x || !positions.y || !positions.width || !positions.height) return;
+  const PDF_HEIGHT = 841.91998;
+  const PDF_WIDTH = 594.95996;
+  const SCREEN_HEIGHT = 1132;
+  const SCREEN_WIDTH = 800;
+
+  return {
+    x: (positions.x * PDF_WIDTH) / SCREEN_WIDTH,
+    y: (positions.y * PDF_HEIGHT) / SCREEN_HEIGHT,
+    width: (positions.width * PDF_WIDTH) / SCREEN_WIDTH,
+    height: (positions.height * PDF_HEIGHT) / SCREEN_HEIGHT
+  }
+}

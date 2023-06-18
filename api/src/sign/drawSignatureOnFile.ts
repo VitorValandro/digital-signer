@@ -2,6 +2,7 @@ import { Signature } from "@prisma/client";
 import { PDFDocument } from "pdf-lib";
 
 import { storageProvider } from "../providers/storage.provider";
+import { mapValuesToPdfProportion } from "../helpers/utils";
 
 export const drawSignatureOnFile = async (documentFile: Buffer, signatures: Array<Signature & { signatureAsset: { signatureUrl: string | null } | null }>) => {
   const document = await PDFDocument.load(documentFile);
@@ -23,12 +24,14 @@ export const drawSignatureOnFile = async (documentFile: Buffer, signatures: Arra
 
     const pages = document.getPages()
     const signaturePage = pages[signature.pageIndex];
+    const mappedValues = mapValuesToPdfProportion(signature);
+    if (!mappedValues) throw "Posições inválidas para a assinatura";
 
     signaturePage?.drawImage(assetImage, {
-      x: signature.x - signature.width,
-      y: signaturePage.getHeight() - signature.y,
-      width: signature.width,
-      height: signature.height
+      x: mappedValues.x,
+      y: signaturePage.getHeight() - mappedValues.y - mappedValues.height,
+      width: mappedValues.width,
+      height: mappedValues.height
     })
   }))
 

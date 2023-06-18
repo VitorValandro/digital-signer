@@ -8,7 +8,7 @@ import { AuthorizedRequest } from '../users/users.middleware';
 import { prisma } from '../../prisma-client';
 import SignPDF from '../sign/SignPdf';
 import { storageProvider } from '../providers/storage.provider';
-import { getFileExtension, parseFormDataWithFiles } from '../helpers/utils';
+import { getFileExtension, mapValuesToPdfProportion, parseFormDataWithFiles } from '../helpers/utils';
 import { drawSignatureOnFile } from '../sign/drawSignatureOnFile';
 import { createTransactionOnBlockchain } from '../blockchain/api';
 
