@@ -130,9 +130,13 @@ export const verifyDocument = async (req: AuthorizedRequest, res: Response) => {
     if (!foundDocument?.block) throw { message: "Documento não encontrado nos registros" }
 
     const validDocumentAuthentication = VerifyPDF.verify(buffer);
-    const validOnBlockchain = await verifyDocumentOnBlockchain(fileHash, foundDocument.block);
+    try {
+      const validOnBlockchain = validDocumentAuthentication && await verifyDocumentOnBlockchain(fileHash, foundDocument.block)
+    } catch (err: any) {
+      return res.status(200).json({ valid: validDocumentAuthentication, document: foundDocument, message: err.error })
+    }
 
-    return res.status(200).json({ valid: validDocumentAuthentication && validOnBlockchain, document: foundDocument });
+    return res.status(200).json({ valid: validDocumentAuthentication, document: foundDocument });
   } catch (error: any) {
     console.error(error);
     if (error.message) return res.status(200).json({ valid: false, message: error.message });

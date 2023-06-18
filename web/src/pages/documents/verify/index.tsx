@@ -5,6 +5,7 @@ import api from "@/services/api";
 import {storageProvider} from "@/services/storage";
 import {useRouter} from "next/router";
 import {useCallback, useEffect, useState} from "react";
+import {toast} from "react-toastify";
 
 export default function VerifyDocumentPage() {
   const [uploadFile, setUploadFile] = useState<File>();
@@ -30,7 +31,11 @@ export default function VerifyDocumentPage() {
 
         if (!verificationResponse.valid)
           setErrorMessage(verificationResponse.message);
-        else setDocumentDetails(verificationResponse.document);
+        else {
+          setDocumentDetails(verificationResponse.document);
+          if (verificationResponse.message)
+            toast.warning(verificationResponse.message);
+        }
 
         setIsVerifying(false);
       })
