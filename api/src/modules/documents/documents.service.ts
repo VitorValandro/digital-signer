@@ -4,11 +4,11 @@ import { v4 as uuid } from 'uuid';
 import fs from 'node:fs';
 
 import { AuthorizedRequest } from '../users/users.middleware';
-import { prisma } from '../../prisma-client';
-import { storageProvider } from '../providers/storage.provider';
-import { parseFormDataWithFiles, sha256 } from '../helpers/utils';
-import { VerifyPDF } from '../sign/VerifyPdf';
-import { verifyDocumentOnBlockchain } from '../blockchain/api';
+import { prisma } from '../../../prisma-client';
+import { storageProvider } from '../../providers/storage.provider';
+import { parseFormDataWithFiles, sha256 } from '../../helpers/utils';
+import { VerifyPDF } from '../../helpers/VerifyPdf';
+import { verifyDocumentOnBlockchain } from '../../blockchain/api';
 
 export const createDocument = async (req: AuthorizedRequest, res: Response) => {
   const DocumentDto = z.object({

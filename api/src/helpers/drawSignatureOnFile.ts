@@ -2,7 +2,7 @@ import { Signature } from "@prisma/client";
 import { PDFDocument } from "pdf-lib";
 
 import { storageProvider } from "../providers/storage.provider";
-import { mapValuesToPdfProportion } from "../helpers/utils";
+import { mapValuesToPdfProportion } from "./utils";
 
 export const drawSignatureOnFile = async (documentFile: Buffer, signatures: Array<Signature & { signatureAsset: { signatureUrl: string | null } | null }>) => {
   const document = await PDFDocument.load(documentFile);

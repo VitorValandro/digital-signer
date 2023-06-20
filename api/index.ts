@@ -3,9 +3,9 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from 'cors';
 
-import userRoutes from "./src/users/users.routes";
-import documentRoutes from "./src/documents/documents.routes";
-import signatureRoutes from "./src/signatures/signatures.routes";
+import userRoutes from "./src/modules/users/users.routes";
+import documentRoutes from "./src/modules/documents/documents.routes";
+import signatureRoutes from "./src/modules/signatures/signatures.routes";
 import { storageProvider } from './src/providers/storage.provider';
 import { prisma } from "./prisma-client";
 

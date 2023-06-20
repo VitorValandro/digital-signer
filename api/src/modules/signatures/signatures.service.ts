@@ -5,12 +5,12 @@ import { v4 as uuid } from 'uuid';
 import fs from 'node:fs';
 
 import { AuthorizedRequest } from '../users/users.middleware';
-import { prisma } from '../../prisma-client';
-import SignPDF from '../sign/SignPdf';
-import { storageProvider } from '../providers/storage.provider';
-import { getFileExtension, mapValuesToPdfProportion, parseFormDataWithFiles } from '../helpers/utils';
-import { drawSignatureOnFile } from '../sign/drawSignatureOnFile';
-import { createTransactionOnBlockchain } from '../blockchain/api';
+import { prisma } from '../../../prisma-client';
+import SignPDF from '../../helpers/SignPdf';
+import { storageProvider } from '../../providers/storage.provider';
+import { getFileExtension, parseFormDataWithFiles } from '../../helpers/utils';
+import { drawSignatureOnFile } from '../../helpers/drawSignatureOnFile';
+import { createTransactionOnBlockchain } from '../../blockchain/api';
 
 export const listUserAssets = async (req: AuthorizedRequest, res: Response) => {
   if (!req.userId) return res.status(400).json({ message: "Identificação do usuário não encontrada." })

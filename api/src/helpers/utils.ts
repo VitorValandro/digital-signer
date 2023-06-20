@@ -1,7 +1,6 @@
 import formidable from "formidable";
-import { AuthorizedRequest } from "../users/users.middleware";
+import { AuthorizedRequest } from "../modules/users/users.middleware";
 import { BinaryLike, createHash } from "crypto";
-import { Signature } from "@prisma/client";
 
 export const parseFormDataWithFiles = (req: AuthorizedRequest) =>
   new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
