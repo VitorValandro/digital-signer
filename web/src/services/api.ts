@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Router from 'next/router'
-import { getToken } from './auth';
+import { getUserThatIsAuthenticated } from './auth';
 import { toast } from 'react-toastify';
 
 const api = axios.create({
@@ -18,7 +18,7 @@ api.interceptors.response.use(response => response, error => {
 })
 
 api.interceptors.request.use(config => {
-  const token = getToken();
+  const token = getUserThatIsAuthenticated()?.token;
   if (!token) return config;
   config.headers.Authorization = `Bearer ${token}`;
   return config;

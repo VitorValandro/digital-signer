@@ -1,4 +1,3 @@
-import {useUserContext} from "@/contexts/UserContext";
 import api from "@/services/api";
 import {login} from "@/services/auth";
 import {useRouter} from "next/router";
@@ -6,7 +5,6 @@ import {toast} from "react-toastify";
 import {z} from "zod";
 
 export default function RegisterForm({toggleForm}: {toggleForm: () => void}) {
-  const {setUser} = useUserContext();
   const router = useRouter();
   const formSchema = z
     .object({
@@ -67,7 +65,6 @@ export default function RegisterForm({toggleForm}: {toggleForm: () => void}) {
             loginData.email,
             loginResponse.data.user.id
           );
-          setUser({...loginResponse.data.user});
           router.push("/");
         });
       })

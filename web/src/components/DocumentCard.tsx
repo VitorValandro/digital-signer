@@ -1,4 +1,4 @@
-import {useUserContext} from "@/contexts/UserContext";
+import {getUserThatIsAuthenticated} from "@/services/auth";
 import Link from "next/link";
 import {useEffect, useState} from "react";
 
@@ -26,7 +26,7 @@ export default function DocumentCard({
 }: DocumentCardProps) {
   const [width, setWidth] = useState(0);
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
-  const {user} = useUserContext();
+  const user = getUserThatIsAuthenticated();
 
   const toggleAccordion = () => {
     setIsAccordionOpen(!isAccordionOpen);

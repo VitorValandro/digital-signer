@@ -1,3 +1,8 @@
+type AuthSession = {
+  token: string;
+  expiresAt: string;
+} & User;
+
 type User = {
   id: string;
   name: string;

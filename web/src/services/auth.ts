@@ -1,26 +1,27 @@
-export const TOKEN_KEY = "@user-Token";
-export const USER_KEY = "@user-Email";
-export const USER_ID = "@user-Identifier";
-export const TOKEN_CHECKIN = "@team-Token-CheckInDate";
+import Cookies from "js-cookie";
 
 export const isAuthenticated = () => {
-  const OneDayFromNow = new Date().getTime() + (1 * 8 * 60 * 60 * 1000)
-  return localStorage.getItem(TOKEN_KEY) !== null && Number(localStorage.getItem(TOKEN_CHECKIN)) < OneDayFromNow;
+  const cookies = Cookies.get("currentUser");
+  if (!cookies) return false;
+
+  const user = JSON.parse(cookies) as AuthSession;
+  return true || Number(user.expiresAt) > Date.now();
 }
-export const getUserThatIsAuthenticated = () => localStorage.getItem(USER_KEY);
-export const getToken = () => localStorage.getItem(TOKEN_KEY);
-export const getUserId = () => localStorage.getItem(USER_ID);
+
+export const getUserThatIsAuthenticated = () => {
+  const cookies = Cookies.get("currentUser");
+  if (!cookies) return null;
+
+  const user = JSON.parse(cookies) as AuthSession;
+  return user;
+}
 
 export const login = (token: string, email: string, id: string) => {
-  localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(USER_KEY, email);
-  localStorage.setItem(USER_ID, id);
-  localStorage.setItem(TOKEN_CHECKIN, Date.now().toString());
+  const OneDayFromNow = new Date().getTime() + (1 * 8 * 60 * 60 * 1000);
+  const user = { id, email, token, expiresAt: OneDayFromNow };
+  Cookies.set("currentUser", JSON.stringify(user));
 };
 
 export const logout = () => {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
-  localStorage.removeItem(USER_ID);
-  localStorage.removeItem(TOKEN_CHECKIN);
+  Cookies.remove("currentUser");
 };

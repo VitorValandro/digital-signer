@@ -3,8 +3,7 @@ import Image from "next/image";
 import {ReactNode, useState} from "react";
 
 import logo from "../../public/insignia-logo.svg";
-import {useUserContext} from "@/contexts/UserContext";
-import {logout} from "@/services/auth";
+import {getUserThatIsAuthenticated, logout} from "@/services/auth";
 import {useRouter} from "next/router";
 
 type SidebarProps = {
@@ -15,7 +14,7 @@ export default function Sidebar({rightSidebar}: SidebarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const {user} = useUserContext();
+  const user = getUserThatIsAuthenticated();
   const router = useRouter();
 
   const toggleSidebar = () => {

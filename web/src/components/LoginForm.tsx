@@ -4,10 +4,8 @@ import {z} from "zod";
 
 import api from "@/services/api";
 import {login} from "@/services/auth";
-import {useUserContext} from "@/contexts/UserContext";
 
 export default function LoginForm({toggleForm}: {toggleForm: () => void}) {
-  const {setUser} = useUserContext();
   const router = useRouter();
 
   const formSchema = z.object({
@@ -46,7 +44,6 @@ export default function LoginForm({toggleForm}: {toggleForm: () => void}) {
       .then((response) => {
         toast.success(`Bem vindo (a), ${response.data.user.name}`);
         login(response.data.token, data.email, response.data.user.id);
-        setUser({...response.data.user});
         router.push("/");
       })
       .catch((err) => {

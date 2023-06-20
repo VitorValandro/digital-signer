@@ -4,7 +4,7 @@ import {KeyedMutator} from "swr";
 
 import api from "@/services/api";
 import LoadingSpinner from "./LoadingSpinner";
-import {useUserContext} from "@/contexts/UserContext";
+import {getUserThatIsAuthenticated} from "@/services/auth";
 
 type AddSignatureCardProps = {
   revalidationFunction: KeyedMutator<SignatureAsset[]>;
@@ -15,8 +15,8 @@ export function AddSignatureCard({
 }: AddSignatureCardProps) {
   const [dragActive, setDragActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const {user} = useUserContext();
   const inputRef = useRef<HTMLInputElement>(null);
+  const user = getUserThatIsAuthenticated();
 
   const handleFileSubmit = (files: FileList) => {
     if (!user) return;
