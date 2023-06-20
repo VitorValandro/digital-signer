@@ -1,6 +1,11 @@
 import { SignTransaction } from "./blockchain";
 import { BinaryLike, createHash } from "crypto";
 
+/**
+ * Função que recebe um dado e retorna um hash produzido pelo algoritmo sha256
+ * @param data - Dado que será hasheado
+ * @returns O hash do dado
+ */
 export const sha256 = (data: BinaryLike) => {
   return createHash('sha256')
     .update(data)
@@ -8,6 +13,9 @@ export const sha256 = (data: BinaryLike) => {
     .toString('hex');
 };
 
+/**
+ * Classe auxiliar que representa um nó da árvore Merkle
+ */
 class MerkleNode {
   public readonly value: string;
   public readonly left: MerkleNode | null;
@@ -20,6 +28,9 @@ class MerkleNode {
   }
 }
 
+/**
+ * Classe que representa a árvore Merkle
+ */
 export class MerkleTree {
   public readonly root: MerkleNode;
   public readonly leafs: string[];
@@ -31,6 +42,7 @@ export class MerkleTree {
     this.leafs = leafs;
   }
 
+  /** Cria a árvore a partir de um array de transações */
   static create(transactions: SignTransaction[] | string[]) {
     if (!transactions.length) throw Error('Transactions array cant be null');
 
@@ -44,6 +56,10 @@ export class MerkleTree {
     return new MerkleTree(root, leafs, size);
   }
 
+  /**
+   * Constrói a árvore de baixo pra cima, a partir das folhas até a raiz
+   * @returns A raiz da árvore
+   */
   private static makeRoot(hashedNodes: MerkleNode[]): MerkleNode {
     if (hashedNodes.length === 1) return hashedNodes[0];
     const sublist = [];
@@ -62,6 +78,9 @@ export class MerkleTree {
     return this.makeRoot(sublist);
   }
 
+  /**
+   * Pega o irmão do nó atual
+   */
   private getSiblingOf(hash: string, node: MerkleNode | null = this.root): { node: MerkleNode | null, left?: boolean } | null {
     if (!node?.value) return null;
     if (node.value === hash) return { node };
@@ -71,6 +90,9 @@ export class MerkleTree {
     return (this.getSiblingOf(hash, node.left) || this.getSiblingOf(hash, node.right));
   }
 
+  /**
+   * Verifica se uma transação faz parte da árvore através do hash dos dados
+   */
   public verify(data: SignTransaction) {
     let hash = sha256(JSON.stringify(data));
     let sibling = this.getSiblingOf(hash);

@@ -16,6 +16,9 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+/**
+ * This cron is for creating a new block at every minute
+ */
 cron.schedule('* * * * *', async () => {
   if (!blockchain.pendingTransactions.length) return;
   const lastBlock = await blockchain.getLastBlock();
@@ -43,11 +46,17 @@ cron.schedule('* * * * *', async () => {
     .then(_ => console.log({ note: "New block mined successfully", block: newBlock }))
 })
 
+/** 
+ * The /chain route is for fetching all the chain blocks
+ */
 app.get('/chain', async (req, res) => {
   const chain = await blockchain.chain();
   res.send({ chain, pendingTransactions: blockchain.pendingTransactions });
 });
 
+/**
+ * The /transaction/verify/:index/:hash if for checking if a fileHash is valid on the block it was registered
+ */
 app.get('/transaction/verify/:index/:hash', async (req, res) => {
   const { index, hash } = req.params;
   if (!index || !hash) return res.status(400).json({ error: "Missing block index or file hash" });
@@ -62,6 +71,9 @@ app.get('/transaction/verify/:index/:hash', async (req, res) => {
   return res.status(200).json({ valid: isValid });
 });
 
+/**
+ * The /transaction route is for adding a new transaction on this node
+ */
 app.post('/transaction', async (req, res) => {
   const { transaction } = req.body;
   if (!transaction) return res.status(403).json({ error: "Missing required transaction object" });
@@ -70,6 +82,9 @@ app.post('/transaction', async (req, res) => {
   res.json({ note: `Transaction will be added in block ${index}` });
 });
 
+/**
+ * The /transaction/broadcast is for adding a new transaction to all connected nodes
+ */
 app.post('/transaction/broadcast', async (req, res) => {
   const { fileHash } = req.body;
   if (!fileHash) return res.status(403).json({ error: "Missing required information" });
@@ -94,6 +109,9 @@ app.post('/transaction/broadcast', async (req, res) => {
     .then(_ => res.json({ note: 'Transaction created and broadcasted successfully.', fileHash, block: index }));
 })
 
+/**
+ * The /receive-new-block route is for receiving a block after it was added in the node that won the PoF lottery
+ */
 app.post('/receive-new-block', async (req, res) => {
   const { block } = req.body;
   if (!block) return res.status(403).json({ error: "Missing required block object" });
@@ -109,6 +127,9 @@ app.post('/receive-new-block', async (req, res) => {
   res.json({ note: 'New block received and accepted ', block: block })
 });
 
+/**
+ * The /register-and-broadcast-node route is for registering a block and sending it for all connected nodes
+ */
 app.post('/register-and-broadcast-node', (req, res) => {
   const newNodeUrl = req.body.newNodeUrl;
   blockchain.addNetworkNode(newNodeUrl);
@@ -141,6 +162,9 @@ app.post('/register-and-broadcast-node', (req, res) => {
     });
 })
 
+/**
+ * The /register-node is for registering a new node on the network
+ */
 app.post('/register-node', (req, res) => {
   const { newNodeUrl } = req.body;
   blockchain.addNetworkNode(newNodeUrl);
@@ -155,6 +179,10 @@ app.post('/register-multiple-nodes', (req, res) => {
   res.json({ note: 'Multiple nodes registrated successfully.' });
 })
 
+/**
+ * The /consensus route is for running the longest chain consensus algorithm on all network nodes blockchains
+ * This replaces fraudulent and outdated blockchains with a valid one and ensures that the blockchain remains authentic
+ */
 app.get('/consensus', (req, res) => {
   // implements the longest chain consensus algorithm
   const promises = blockchain.networkNodes.map(networkNodeUrl => {
@@ -183,6 +211,9 @@ app.get('/consensus', (req, res) => {
     })
 })
 
+/**
+ * Return all node addresses registered on this network
+ */
 app.get('/network-acknowledge', (req, res) => {
   return res.json({
     networkNodes: blockchain.networkNodes
