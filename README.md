@@ -7,7 +7,7 @@
  Um serviço de assinaturas digitais simples e seguro
 </h3>
 
-O Ínsignia permite que usuários compartilhem documentos entre si para assiná-los digitalmente de forma rápida e segura.
+O Ínsignia permite que usuários compartilhem documentos entre si para assiná-los digitalmente de forma rápida e segura. Acesse agora: https://ufsc-insignia.vercel.app/auth
 
 <div align="center">
   <div align="center">
