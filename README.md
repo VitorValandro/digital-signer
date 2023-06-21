@@ -145,3 +145,6 @@ Para conectar vários nós em uma rede use as rotas `/register-node` ou `/regist
 ### Considerações finais
 
 O objetivo era aprender os conceitos básicos de blockchain e desenvolver uma blockchain independente a partir do zero. Esse objetivo foi cumprido. Também consegui aprender bastante coisa sobre criptografia assimétrica, assinaturas digitais e especificações avançadas de arquivos PDF. O resultado final me agrada bastante, é um serviço de assinatura 100% funcional que pode ser usado em praticamente qualquer cenário. É um MVP e ainda há bastante espaço para melhorias, mas gostei bastante do resultado em relação ao tempo investido.
+
+### INE5646
+### Vitor Matheus Valandro da Rosa (22102567)
