@@ -82,12 +82,12 @@ export default function VerifyDocumentPage() {
         ) : (
           <div className="w-[90%] sm:w-[60%] lg:w-[40%] mt-[100px] grid-cols-1 sm:grid grid-cols-[20%_80%] items-center gap-y-10">
             {isVerifying ? (
-              <div className="flex flex-col items-center justify-center gap-8">
+              <>
+                <LoadingSpinner size={16} />
                 <p className="text-slate-600 font-medium text-lg">
                   Autenticando assinaturas do documento...
                 </p>
-                <LoadingSpinner size={16} />
-              </div>
+              </>
             ) : !errorMessage ? (
               <>
                 <svg

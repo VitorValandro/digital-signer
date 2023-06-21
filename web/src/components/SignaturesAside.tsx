@@ -17,7 +17,7 @@ export function SignaturesAside({
   const {title, setTitle, signatures, removeSignature} = useDocumentContext();
 
   return (
-    <>
+    <div className="h-full w-full">
       <div className="w-full px-5 inline-flex items-center justify-center mb-4">
         <input
           className="mx-8 border-b-2 w-full border-slate-400"
@@ -35,7 +35,7 @@ export function SignaturesAside({
       ) : (
         <></>
       )}
-      <div className="h-full px-3 pb-4 bg-white dark:bg-gray-800">
+      <div className="h-4/5 px-3 pb-4 bg-white">
         {isFileSelected ? (
           <>
             <button
@@ -107,7 +107,7 @@ export function SignaturesAside({
               })}
             </div>
 
-            <div className="h-1/5 mt-5">
+            <div className="h-auto mt-5">
               {signatures.length ? (
                 title ? (
                   <button
@@ -170,6 +170,6 @@ export function SignaturesAside({
           </>
         )}
       </div>
-    </>
+    </div>
   );
 }
