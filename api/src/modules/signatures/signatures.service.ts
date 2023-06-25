@@ -123,7 +123,7 @@ const saveSignedDocument = async (documentId: string | undefined) => {
   const { fileName, file } = await storageProvider.download(document.blankDocumentUrl);
   const documentWithSignatureAssets = await drawSignatureOnFile(file, document.signatures);
 
-  const pdfMetadata = new SignPDF(documentWithSignatureAssets, './assets/test-certificate.p12', 0);
+  const pdfMetadata = new SignPDF(documentWithSignatureAssets, './assets/insignia-certificate.p12', 0);
 
   const pdfBuffer = await pdfMetadata.signPDF();
   const signedFileName = `signed_${fileName}`;
